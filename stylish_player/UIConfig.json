@@ -538,6 +538,7 @@
             { "value": "analogClock", "label": "TRANSLATE.IDLE_SCREEN_ANALOG_CLOCK" },
             { "value": "digitalClock", "label": "TRANSLATE.IDLE_SCREEN_DIGITAL_CLOCK" },
             { "value": "flipClock", "label": "TRANSLATE.IDLE_SCREEN_FLIP_CLOCK" },
+            { "value": "ledMatrixClock", "label": "TRANSLATE.IDLE_SCREEN_LED_MATRIX_CLOCK" },
             { "value": "weatherCurrent", "label": "TRANSLATE.IDLE_SCREEN_WEATHER_CURRENT" },
             { "value": "weatherHourly", "label": "TRANSLATE.IDLE_SCREEN_WEATHER_HOURLY" },
             { "value": "weatherDaily", "label": "TRANSLATE.IDLE_SCREEN_WEATHER_DAILY" },

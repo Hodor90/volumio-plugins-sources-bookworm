@@ -39,6 +39,7 @@
   "IDLE_SCREEN_ANALOG_CLOCK": "アナログ時計",
   "IDLE_SCREEN_DIGITAL_CLOCK": "デジタル時計",
   "IDLE_SCREEN_FLIP_CLOCK": "フリップ時計",
+  "IDLE_SCREEN_LED_MATRIX_CLOCK": "LEDマトリックス時計",
   "IDLE_SCREEN_MATRIX": "マトリックスアニメーション",
   "IDLE_SCREEN_EXTERNAL_URL": "外部URL",
   "EXTERNAL_URL": "外部URL",

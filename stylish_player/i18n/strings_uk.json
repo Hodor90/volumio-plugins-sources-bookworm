@@ -39,6 +39,7 @@
   "IDLE_SCREEN_ANALOG_CLOCK": "Аналоговий Годинник",
   "IDLE_SCREEN_DIGITAL_CLOCK": "Цифровий Годинник",
   "IDLE_SCREEN_FLIP_CLOCK": "Перекидний Годинник",
+  "IDLE_SCREEN_LED_MATRIX_CLOCK": "Матричний Годинник LED",
   "IDLE_SCREEN_MATRIX": "Анімація Матриця",
   "IDLE_SCREEN_EXTERNAL_URL": "Зовнішній URL",
   "EXTERNAL_URL": "Зовнішній URL",

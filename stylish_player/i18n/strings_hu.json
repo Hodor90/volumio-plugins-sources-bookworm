@@ -39,6 +39,7 @@
   "IDLE_SCREEN_ANALOG_CLOCK": "Analóg óra",
   "IDLE_SCREEN_DIGITAL_CLOCK": "Digitális óra",
   "IDLE_SCREEN_FLIP_CLOCK": "Pergő óra",
+  "IDLE_SCREEN_LED_MATRIX_CLOCK": "LED mátrix óra",
   "IDLE_SCREEN_MATRIX": "Mátrix Animáció",
   "IDLE_SCREEN_EXTERNAL_URL": "Külső URL",
   "EXTERNAL_URL": "Külső URL",

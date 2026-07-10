@@ -39,6 +39,7 @@
   "IDLE_SCREEN_ANALOG_CLOCK": "Reloj Analógico",
   "IDLE_SCREEN_DIGITAL_CLOCK": "Reloj Digital",
   "IDLE_SCREEN_FLIP_CLOCK": "Reloj de Volteo",
+  "IDLE_SCREEN_LED_MATRIX_CLOCK": "Reloj de Matriz LED",
   "IDLE_SCREEN_MATRIX": "Animación Matrix",
   "IDLE_SCREEN_EXTERNAL_URL": "URL Externa",
   "EXTERNAL_URL": "URL Externa",

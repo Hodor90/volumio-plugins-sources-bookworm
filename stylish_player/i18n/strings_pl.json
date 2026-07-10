@@ -39,6 +39,7 @@
   "IDLE_SCREEN_ANALOG_CLOCK": "Zegar Analogowy",
   "IDLE_SCREEN_DIGITAL_CLOCK": "Zegar Cyfrowy",
   "IDLE_SCREEN_FLIP_CLOCK": "Zegar Przerzutowy",
+  "IDLE_SCREEN_LED_MATRIX_CLOCK": "Zegar Matrycowy LED",
   "IDLE_SCREEN_MATRIX": "Animacja Matrix",
   "IDLE_SCREEN_EXTERNAL_URL": "Zewnętrzny URL",
   "EXTERNAL_URL": "Zewnętrzny URL",

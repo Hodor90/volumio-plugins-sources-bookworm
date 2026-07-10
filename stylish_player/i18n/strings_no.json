@@ -39,6 +39,7 @@
   "IDLE_SCREEN_ANALOG_CLOCK": "Analog klokke",
   "IDLE_SCREEN_DIGITAL_CLOCK": "Digital klokke",
   "IDLE_SCREEN_FLIP_CLOCK": "Flippeklokke",
+  "IDLE_SCREEN_LED_MATRIX_CLOCK": "LED-matriseklokke",
   "IDLE_SCREEN_MATRIX": "Matrix Animasjon",
   "IDLE_SCREEN_EXTERNAL_URL": "Ekstern URL",
   "EXTERNAL_URL": "Ekstern URL",

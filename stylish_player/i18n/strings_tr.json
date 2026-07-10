@@ -39,6 +39,7 @@
   "IDLE_SCREEN_ANALOG_CLOCK": "Analog Saat",
   "IDLE_SCREEN_DIGITAL_CLOCK": "Dijital Saat",
   "IDLE_SCREEN_FLIP_CLOCK": "Çevirmeli Saat",
+  "IDLE_SCREEN_LED_MATRIX_CLOCK": "LED Matris Saati",
   "IDLE_SCREEN_MATRIX": "Matrix Animasyonu",
   "IDLE_SCREEN_EXTERNAL_URL": "Harici URL",
   "EXTERNAL_URL": "Harici URL",

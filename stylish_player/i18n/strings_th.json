@@ -39,6 +39,7 @@
   "IDLE_SCREEN_ANALOG_CLOCK": "นาฬิกาแบบอนาล็อก",
   "IDLE_SCREEN_DIGITAL_CLOCK": "นาฬิกาแบบดิจิทัล",
   "IDLE_SCREEN_FLIP_CLOCK": "นาฬิกาแบบพลิก",
+  "IDLE_SCREEN_LED_MATRIX_CLOCK": "นาฬิกาแอลอีดีเมทริกซ์",
   "IDLE_SCREEN_MATRIX": "แอนิเมชั่น Matrix",
   "IDLE_SCREEN_EXTERNAL_URL": "URL ภายนอก",
   "EXTERNAL_URL": "URL ภายนอก",

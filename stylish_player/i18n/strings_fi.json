@@ -39,6 +39,7 @@
   "IDLE_SCREEN_ANALOG_CLOCK": "Analoginen kello",
   "IDLE_SCREEN_DIGITAL_CLOCK": "Digitaalinen kello",
   "IDLE_SCREEN_FLIP_CLOCK": "Läppäkello",
+  "IDLE_SCREEN_LED_MATRIX_CLOCK": "LED-matriisikello",
   "IDLE_SCREEN_MATRIX": "Matrix Animaatio",
   "IDLE_SCREEN_EXTERNAL_URL": "Ulkoinen URL",
   "EXTERNAL_URL": "Ulkoinen URL",

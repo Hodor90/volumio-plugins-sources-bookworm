@@ -39,6 +39,7 @@
   "IDLE_SCREEN_ANALOG_CLOCK": "Analoge Klok",
   "IDLE_SCREEN_DIGITAL_CLOCK": "Digitale Klok",
   "IDLE_SCREEN_FLIP_CLOCK": "Flipklok",
+  "IDLE_SCREEN_LED_MATRIX_CLOCK": "LED-matrixklok",
   "IDLE_SCREEN_MATRIX": "Matrix Animatie",
   "IDLE_SCREEN_EXTERNAL_URL": "Externe URL",
   "EXTERNAL_URL": "Externe URL",

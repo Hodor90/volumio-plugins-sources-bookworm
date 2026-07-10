@@ -39,6 +39,7 @@
   "IDLE_SCREEN_ANALOG_CLOCK": "Аналоговые Часы",
   "IDLE_SCREEN_DIGITAL_CLOCK": "Цифровые Часы",
   "IDLE_SCREEN_FLIP_CLOCK": "Перекидные Часы",
+  "IDLE_SCREEN_LED_MATRIX_CLOCK": "Светодиодные Матричные Часы",
   "IDLE_SCREEN_MATRIX": "Анимация Матрица",
   "IDLE_SCREEN_EXTERNAL_URL": "Внешний URL",
   "EXTERNAL_URL": "Внешний URL",

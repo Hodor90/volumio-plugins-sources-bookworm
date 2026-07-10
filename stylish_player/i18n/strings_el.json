@@ -39,6 +39,7 @@
   "IDLE_SCREEN_ANALOG_CLOCK": "Αναλογικό Ρολόι",
   "IDLE_SCREEN_DIGITAL_CLOCK": "Ψηφιακό Ρολόι",
   "IDLE_SCREEN_FLIP_CLOCK": "Ρολόι Αναποδογύρισμα",
+  "IDLE_SCREEN_LED_MATRIX_CLOCK": "Ρολόι Πίνακα LED",
   "IDLE_SCREEN_MATRIX": "Matrix Animation",
   "IDLE_SCREEN_EXTERNAL_URL": "Εξωτερικό URL",
   "EXTERNAL_URL": "Εξωτερικό URL",

@@ -44,6 +44,7 @@
   "IDLE_SCREEN_ANALOG_CLOCK": "Analog Clock",
   "IDLE_SCREEN_DIGITAL_CLOCK": "Digital Clock",
   "IDLE_SCREEN_FLIP_CLOCK": "Flip Clock",
+  "IDLE_SCREEN_LED_MATRIX_CLOCK": "LED Matrix Clock",
   "IDLE_SCREEN_EXTERNAL_URL": "External URL",
   "EXTERNAL_URL": "External URL",
   "EXTERNAL_URL_DESC": "Full URL to load in an iframe (e.g. https://rezmason.github.io/matrix/).",
