@@ -250,6 +250,62 @@ class RdkProg {
         return programs;
     }
     /**
+     * 指定局・指定日の番組表XML(`PROG_DAILY_STATION_URL`)を取得し、DBへ保存した上で配列として返す。
+     * `getStationPrograms`(前後1週間分)ではカバーできない、7日より前/後の日付を個別に補うために使う。
+     * @param stationId 局ID。
+     * @param date 対象日(`'yyyyMMdd'`)。
+     */
+    async getStationProgramsForDate(stationId, date) {
+        const url = (0, util_1.format)(radiko_urls_1.PROG_DAILY_STATION_URL, date, stationId);
+        const programs = [];
+        try {
+            const response = await http_client_1.httpClient.get(url);
+            const xmlData = this.xmlParser.parse(response.body);
+            const stations = (0, xml_1.toArray)(xmlData?.radiko?.stations?.station);
+            for (const stationData of stations) {
+                const progsBlocks = (0, xml_1.toArray)(stationData.progs);
+                for (const block of progsBlocks) {
+                    const progs = (0, xml_1.toArray)(block?.prog);
+                    if (progs.length === 0) {
+                        continue;
+                    }
+                    const today = (0, radio_time_1.parseRadioTime)(progs[0]['@ft']).date;
+                    for (const prog of progs) {
+                        let pfm = prog['pfm'];
+                        if (pfm === undefined) {
+                            pfm = '';
+                        }
+                        const program = {
+                            station: String(stationId),
+                            id: stationId + prog['@id'],
+                            ft: (0, radio_time_1.cnvRadioTime)(prog['@ft'], today),
+                            tt: (0, radio_time_1.cnvRadioTime)(prog['@to'], today),
+                            title: prog['title'],
+                            pfm,
+                            img: prog['img'],
+                        };
+                        programs.push(program);
+                        await this.putProgram(program);
+                    }
+                }
+            }
+        }
+        catch (error) {
+            this.logger.error('PRG_E008', stationId, date, error);
+        }
+        return programs;
+    }
+    /**
+     * 指定局について、複数日分の番組表(`getStationProgramsForDate`)を並列(最大5並列)で取得する。
+     * @param stationId 局ID。
+     * @param dates 対象日(`'yyyyMMdd'`)の配列。
+     */
+    async getStationProgramsForDates(stationId, dates) {
+        const limit = (0, p_limit_1.default)(5);
+        const results = await Promise.all(dates.map((date) => limit(() => this.getStationProgramsForDate(stationId, date))));
+        return results.flat();
+    }
+    /**
      * DBファイルをコンパクションして終了する(プラグイン停止時に呼ばれる)。
      */
     async dbClose() {

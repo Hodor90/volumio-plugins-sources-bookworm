@@ -11,4 +11,13 @@
  * @returns 番組表取得対象とすべきエリアIDの配列。
  */
 export declare function resolveAreaIdArray(myAreaId: string | undefined, stationAreaIdArray: readonly string[], selectedAreaIdArray?: readonly string[]): string[];
+/**
+ * 局一覧のBrowse表示(ライブ/タイムフリー/検索)を「エリア選択」設定で絞り込むべきエリアID集合を返す。
+ * エリアフリー会員が設定画面で1つ以上エリアを選択している場合のみ絞り込みを行い、
+ * それ以外(非エリアフリー会員、または未選択)はnull(絞り込みなし=全局対象)を返す。
+ * @param myAreaId `Radiko.getMyAreaId()`の戻り値(`'JP13/AreaFree'`形式)。未初期化の場合はundefined。
+ * @param selectedAreaIdArray エリアフリー会員が設定画面で選択したエリアIDの一覧。
+ * @returns 絞り込み対象のエリアID集合。絞り込み不要ならnull。
+ */
+export declare function resolveAreaFilter(myAreaId: string | undefined, selectedAreaIdArray: readonly string[]): Set<string> | null;
 //# sourceMappingURL=area-resolver.d.ts.map

@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.resolveAreaIdArray = void 0;
+exports.resolveAreaFilter = exports.resolveAreaIdArray = void 0;
 /**
  * 自身のエリア情報文字列(`Radiko.getMyAreaId()`の戻り値、`'JP13/AreaFree'`形式)と
  * 局一覧に実際に含まれる全エリアIDから、番組表取得対象のエリアID配列を決定する。
@@ -33,4 +33,23 @@ function resolveAreaIdArray(myAreaId, stationAreaIdArray, selectedAreaIdArray = 
     return [idArray[0], 'JP13'];
 }
 exports.resolveAreaIdArray = resolveAreaIdArray;
+/**
+ * 局一覧のBrowse表示(ライブ/タイムフリー/検索)を「エリア選択」設定で絞り込むべきエリアID集合を返す。
+ * エリアフリー会員が設定画面で1つ以上エリアを選択している場合のみ絞り込みを行い、
+ * それ以外(非エリアフリー会員、または未選択)はnull(絞り込みなし=全局対象)を返す。
+ * @param myAreaId `Radiko.getMyAreaId()`の戻り値(`'JP13/AreaFree'`形式)。未初期化の場合はundefined。
+ * @param selectedAreaIdArray エリアフリー会員が設定画面で選択したエリアIDの一覧。
+ * @returns 絞り込み対象のエリアID集合。絞り込み不要ならnull。
+ */
+function resolveAreaFilter(myAreaId, selectedAreaIdArray) {
+    if (selectedAreaIdArray.length === 0) {
+        return null;
+    }
+    const memberType = myAreaId?.split('/')[1];
+    if (memberType !== 'AreaFree') {
+        return null;
+    }
+    return new Set(selectedAreaIdArray);
+}
+exports.resolveAreaFilter = resolveAreaFilter;
 //# sourceMappingURL=area-resolver.js.map

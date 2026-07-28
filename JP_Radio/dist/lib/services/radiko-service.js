@@ -564,15 +564,6 @@ class Radiko {
             return null;
         }
     }
-    /**
-     * 指定局・指定日の番組表XMLを取得してパースする。
-     * @param station 局ID。
-     * @param date 対象日(`'yyyyMMdd'`)。
-     */
-    async getProgramDaily(station, date) {
-        const res = await http_client_1.httpClient.get((0, util_1.format)(radiko_urls_1.PROG_DAILY_STATION_URL, station, date));
-        return xmlParser.parse(res.body);
-    }
 }
 exports.default = Radiko;
 //# sourceMappingURL=radiko-service.js.map

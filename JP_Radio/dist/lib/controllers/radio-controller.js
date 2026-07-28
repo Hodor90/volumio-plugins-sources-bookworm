@@ -460,7 +460,9 @@ class JpRadio {
                 uri: 'radiko/live'
             };
         }
-        const entries = Array.from(this.rdk.stations.entries());
+        const areaFilter = await this.#getSelectedAreaFilter();
+        const entries = Array.from(this.rdk.stations.entries())
+            .filter(([, stationInfo]) => areaFilter === null || areaFilter.has(stationInfo.areaId));
         // 地域名ごとにグループ化
         const grouped = {};
         const stationPromises = entries.map(async ([stationId, stationInfo]) => {
@@ -535,8 +537,12 @@ class JpRadio {
         if (this.rdk?.stations === undefined) {
             return [];
         }
+        const areaFilter = await this.#getSelectedAreaFilter();
         const lowerKeyword = keyword.toLowerCase();
         const matchedEntries = Array.from(this.rdk.stations.entries()).filter(([, stationInfo]) => {
+            if (areaFilter !== null && areaFilter.has(stationInfo.areaId) === false) {
+                return false;
+            }
             return stationInfo.name.toLowerCase().includes(lowerKeyword)
                 || stationInfo.asciiName.toLowerCase().includes(lowerKeyword);
         });
@@ -717,8 +723,12 @@ class JpRadio {
             };
         }
         const timetableSegment = mode === 'today' ? 'timetable_today' : 'timetable';
+        const areaFilter = await this.#getSelectedAreaFilter();
         const grouped = {};
         for (const [stationId, stationInfo] of this.rdk.stations.entries()) {
+            if (areaFilter !== null && areaFilter.has(stationInfo.areaId) === false) {
+                continue;
+            }
             const areaName = stationInfo.areaKanji || stationInfo.areaName;
             const item = {
                 service: this.serviceName,
@@ -780,6 +790,19 @@ class JpRadio {
             toDateOnly = (0, radio_time_1.addDaysToDateOnly)(today, this.programPeriodTo);
         }
         const programs = await this.prg?.getStationPrograms(stationId) ?? [];
+        // getStationPrograms(週次API)は前後1週間分しか返らないため、表示期間設定(最大30日)で
+        // それより外側の日付を指定された場合は、日別APIで個別に補う(GitHub issue #21関連の追加報告)。
+        const coveredDates = new Set(programs.map((program) => (0, radio_time_1.parseRadioTime)(program.ft).date));
+        const missingDates = [];
+        for (let dateOnly = fromDateOnly; dateOnly <= toDateOnly; dateOnly = (0, radio_time_1.addDaysToDateOnly)(dateOnly, 1)) {
+            if (coveredDates.has(dateOnly) === false) {
+                missingDates.push(dateOnly);
+            }
+        }
+        if (missingDates.length > 0) {
+            const extraPrograms = await this.prg?.getStationProgramsForDates(stationId, missingDates) ?? [];
+            programs.push(...extraPrograms);
+        }
         const currentRadioTime = (0, radio_time_1.getCurrentRadioTime)();
         const buildPlayUri = (ft, tt) => {
             const playUrl = new URL(`http://localhost:${this.port}/radiko/play/${stationId}`);
@@ -1064,6 +1087,13 @@ class JpRadio {
             this.rdk = null;
             this.commandRouter.pushToastMessage('info', message_catalog_1.messageCatalog.get('APP_TITLE'), message_catalog_1.messageCatalog.get('STOPPED'));
         }
+    }
+    /**
+     * 「エリア選択」設定による局一覧の絞り込み対象エリアID集合を返す({@link resolveAreaFilter}参照)。
+     */
+    async #getSelectedAreaFilter() {
+        const myAreaId = await this.rdk?.getMyAreaId();
+        return (0, area_resolver_1.resolveAreaFilter)(myAreaId, this.radikoAreaIdArray);
     }
     /**
      * 起動直後にRadikoへログイン・局一覧を取得し、番組表を初回更新する。

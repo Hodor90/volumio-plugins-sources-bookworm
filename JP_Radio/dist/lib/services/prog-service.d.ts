@@ -55,6 +55,19 @@ export default class RdkProg {
      */
     getStationPrograms(stationId: string): Promise<RadikoProgramData[]>;
     /**
+     * 指定局・指定日の番組表XML(`PROG_DAILY_STATION_URL`)を取得し、DBへ保存した上で配列として返す。
+     * `getStationPrograms`(前後1週間分)ではカバーできない、7日より前/後の日付を個別に補うために使う。
+     * @param stationId 局ID。
+     * @param date 対象日(`'yyyyMMdd'`)。
+     */
+    getStationProgramsForDate(stationId: string, date: string): Promise<RadikoProgramData[]>;
+    /**
+     * 指定局について、複数日分の番組表(`getStationProgramsForDate`)を並列(最大5並列)で取得する。
+     * @param stationId 局ID。
+     * @param dates 対象日(`'yyyyMMdd'`)の配列。
+     */
+    getStationProgramsForDates(stationId: string, dates: string[]): Promise<RadikoProgramData[]>;
+    /**
      * DBファイルをコンパクションして終了する(プラグイン停止時に呼ばれる)。
      */
     dbClose(): Promise<void>;

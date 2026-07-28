@@ -123,11 +123,5 @@ export default class Radiko {
      * @param token 付与する`X-Radiko-AuthToken`。
      */
     private genTempChunkM3u8URL;
-    /**
-     * 指定局・指定日の番組表XMLを取得してパースする。
-     * @param station 局ID。
-     * @param date 対象日(`'yyyyMMdd'`)。
-     */
-    getProgramDaily(station: string, date: string): Promise<any>;
 }
 //# sourceMappingURL=radiko-service.d.ts.map
