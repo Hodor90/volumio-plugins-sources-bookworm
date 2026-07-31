@@ -342,9 +342,5 @@
     "newpresetname": {
         "type": "string",
         "value": ""
-    },
-    "chunksize": {
-        "type": "number",
-        "value": 4800
     }
 }
