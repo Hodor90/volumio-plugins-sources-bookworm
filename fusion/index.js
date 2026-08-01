@@ -1,6 +1,6 @@
 /*--------------------
 // FusionDsp plugin for volumio 4. By balbuze July 2026
-Camilladsp v4.1.0
+Camilladsp v4.1.3
 contribution : Nerd, Paolo Sabatino, squadgazzz
 Multi Dsp features
 Based on CamillaDsp
@@ -638,15 +638,15 @@ function configureEq15Section(self, uiconf, selectedsp) {
   const eqtext = selectedsp === 'EQ15'
     ? self.commandRouter.getI18nString('LANDRCHAN')
     : `${self.commandRouter.getI18nString('LEFTCHAN')},${self.commandRouter.getI18nString('RIGHTCHAN')}`;
-      uiconf.sections[1].content.push({
-      id: 'showpeqcurve',
-      element: 'button',
-      label: self.commandRouter.getI18nString('SHOW_PEQ_CURVE'),
-      doc: self.commandRouter.getI18nString('SHOW_PEQ_CURVE_DOC'),
-      onClick: { type: 'openUrl', url: `http://${IPaddress}:10015` }
+  uiconf.sections[1].content.push({
+    id: 'showpeqcurve',
+    element: 'button',
+    label: self.commandRouter.getI18nString('SHOW_PEQ_CURVE'),
+    doc: self.commandRouter.getI18nString('SHOW_PEQ_CURVE_DOC'),
+    onClick: { type: 'openUrl', url: `http://${IPaddress}:10015` }
 
-      // visibleIf: { field: 'showeq', value: true }
-    });
+    // visibleIf: { field: 'showeq', value: true }
+  });
 
   listeq.forEach((eq, i) => {
     const neq = eqtext.split(',')[i];
@@ -663,17 +663,17 @@ function configureEq15Section(self, uiconf, selectedsp) {
       tooltip: 'show',
       muted: mutedBands[idx] === '1'
     }));
-/*
-    uiconf.sections[1].content.push({
-      id: 'showpeqcurve',
-      element: 'button',
-      label: self.commandRouter.getI18nString('SHOW_PEQ_CURVE'),
-      doc: self.commandRouter.getI18nString('SHOW_PEQ_CURVE_DOC'),
-      onClick: { type: 'openUrl', url: `http://${IPaddress}:10015` }
-
-      // visibleIf: { field: 'showeq', value: true }
-    });
-    */
+    /*
+        uiconf.sections[1].content.push({
+          id: 'showpeqcurve',
+          element: 'button',
+          label: self.commandRouter.getI18nString('SHOW_PEQ_CURVE'),
+          doc: self.commandRouter.getI18nString('SHOW_PEQ_CURVE_DOC'),
+          onClick: { type: 'openUrl', url: `http://${IPaddress}:10015` }
+    
+          // visibleIf: { field: 'showeq', value: true }
+        });
+        */
     uiconf.sections[1].content.push({
       id: eq,
       element: 'equalizer',
@@ -1284,11 +1284,14 @@ FusionDsp.prototype.purecamillagui = function () {
 
 FusionDsp.prototype.configureVeryAdvSet = function (data) {
   const self = this;
-  self.config.set('chunksize', data['chunksize'].value);
+  var chunksize = data['chunksize'].value
+  self.config.set('chunksize', chunksize);
 
   setTimeout(function () {
     self.createCamilladspfile()
   }, 100);
+  self.logger.info(logPrefix + ' Chunksise set to ' + chunksize);
+  self.commandRouter.pushToastMessage('success', 'Chunksise set to ' + chunksize);
 
   self.refreshUI();
 };
