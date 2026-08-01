@@ -1,6 +1,6 @@
 /*--------------------
-// FusionDsp plugin for volumio 4. By balbuze June 2026
-Camilladsp v4.1.0
+// FusionDsp plugin for volumio 4. By balbuze July 2026
+Camilladsp v4.1.3
 contribution : Nerd, Paolo Sabatino, squadgazzz
 Multi Dsp features
 Based on CamillaDsp
@@ -371,6 +371,10 @@ FusionDsp.prototype.getUIConfig = function () {
         // Section 9: Tools
         configureTools(self, uiconf);
 
+        // Section 10: VeryAdvSet
+        configureVeryAdvSet(self, uiconf);
+
+
         defer.resolve(uiconf);
       } catch (e) {
         self.logger.error(logPrefix + 'Error: ' + e);
@@ -634,16 +638,15 @@ function configureEq15Section(self, uiconf, selectedsp) {
   const eqtext = selectedsp === 'EQ15'
     ? self.commandRouter.getI18nString('LANDRCHAN')
     : `${self.commandRouter.getI18nString('LEFTCHAN')},${self.commandRouter.getI18nString('RIGHTCHAN')}`;
+  uiconf.sections[1].content.push({
+    id: 'showpeqcurve',
+    element: 'button',
+    label: self.commandRouter.getI18nString('SHOW_PEQ_CURVE'),
+    doc: self.commandRouter.getI18nString('SHOW_PEQ_CURVE_DOC'),
+    onClick: { type: 'openUrl', url: `http://${IPaddress}:10015` }
 
-        uiconf.sections[1].content.push({
-      id: 'showpeqcurve',
-      element: 'button',
-      label: self.commandRouter.getI18nString('SHOW_PEQ_CURVE'),
-      doc: self.commandRouter.getI18nString('SHOW_PEQ_CURVE_DOC'),
-      onClick: { type: 'openUrl', url: `http://${IPaddress}:10015` }
-
-      // visibleIf: { field: 'showeq', value: true }
-    });
+    // visibleIf: { field: 'showeq', value: true }
+  });
 
   listeq.forEach((eq, i) => {
     const neq = eqtext.split(',')[i];
@@ -660,17 +663,17 @@ function configureEq15Section(self, uiconf, selectedsp) {
       tooltip: 'show',
       muted: mutedBands[idx] === '1'
     }));
-/*
-    uiconf.sections[1].content.push({
-      id: 'showpeqcurve',
-      element: 'button',
-      label: self.commandRouter.getI18nString('SHOW_PEQ_CURVE'),
-      doc: self.commandRouter.getI18nString('SHOW_PEQ_CURVE_DOC'),
-      onClick: { type: 'openUrl', url: `http://${IPaddress}:10015` }
-
-      // visibleIf: { field: 'showeq', value: true }
-    });
-    */
+    /*
+        uiconf.sections[1].content.push({
+          id: 'showpeqcurve',
+          element: 'button',
+          label: self.commandRouter.getI18nString('SHOW_PEQ_CURVE'),
+          doc: self.commandRouter.getI18nString('SHOW_PEQ_CURVE_DOC'),
+          onClick: { type: 'openUrl', url: `http://${IPaddress}:10015` }
+    
+          // visibleIf: { field: 'showeq', value: true }
+        });
+        */
     uiconf.sections[1].content.push({
       id: eq,
       element: 'equalizer',
@@ -709,7 +712,7 @@ function configureEq15Section(self, uiconf, selectedsp) {
 }
 
 function configureEq3Section(self, uiconf) {
-  for (let i = 2; i <= 11; i++) uiconf.sections[i].hidden = true;
+  for (let i = 2; i <= 12; i++) uiconf.sections[i].hidden = true;
 
   const geq3 = self.config.get('geq3').split(',');
   const mutedBands = (self.config.get('geq3mute') || '0,0,0').split(',');
@@ -898,7 +901,7 @@ function configureAdvancedSettings(self, uiconf, selectedsp) {
       { id: 'loudness', element: 'switch', doc: self.commandRouter.getI18nString('LOUDNESS_DOC'), label: self.commandRouter.getI18nString('LOUDNESS'), value: self.config.get('loudness'), visibleIf: { field: 'showeq', value: true } },
       { id: 'loudnessthreshold', element: 'equalizer', label: self.commandRouter.getI18nString('LOUDNESS_THRESHOLD'), doc: self.commandRouter.getI18nString('LOUDNESS_THRESHOLD_DOC'), visibleIf: { field: 'showeq', value: true }, config: { orientation: 'horizontal', bars: [{ min: 10, max: 100, step: '1', value: self.config.get('loudnessthreshold'), ticksLabels: ['%'], tooltip: 'always' }] } },
       //{ id: 'loudnessstrength', element: 'equalizer', label: self.commandRouter.getI18nString('LOUDNESS_STRENGTH'), doc: self.commandRouter.getI18nString('LOUDNESS_STRENGTH_DOC'), visibleIf: { field: 'showeq', value: true }, config: { orientation: 'horizontal', bars: [{ min: 0, max: 2, step: '1', value: self.config.get('loudnessstrength'), ticks: [0, 1, 2], ticksLabels: ['Min', 'Medium', 'Max'], tooltip: 'show' }] } }
-      { id: 'loudnessstrength', element: 'equalizer', label: self.commandRouter.getI18nString('LOUDNESS_STRENGTH'), doc: self.commandRouter.getI18nString('LOUDNESS_STRENGTH_DOC'), visibleIf: { field: 'showeq', value: true }, config: { orientation: 'horizontal', bars: [{ value: self.config.get('loudnessstrength'), ticks: [0, 1, 2,3], ticksLabels: ['Min','Low', 'Medium', 'Max'], tooltip: 'hide' }] } }
+      { id: 'loudnessstrength', element: 'equalizer', label: self.commandRouter.getI18nString('LOUDNESS_STRENGTH'), doc: self.commandRouter.getI18nString('LOUDNESS_STRENGTH_DOC'), visibleIf: { field: 'showeq', value: true }, config: { orientation: 'horizontal', bars: [{ value: self.config.get('loudnessstrength'), ticks: [0, 1, 2, 3], ticksLabels: ['Min', 'Low', 'Medium', 'Max'], tooltip: 'hide' }] } }
 
     );
   }
@@ -1148,6 +1151,15 @@ function configureTools(self, uiconf) {
   uiconf.sections[10].content[2].hidden = ttools;
 }
 
+
+function configureVeryAdvSet(self, uiconf) {
+  self.configManager.setUIConfigParam(uiconf, 'sections[12].content[0].value.value', self.config.get('chunksize'));
+  self.configManager.setUIConfigParam(uiconf, 'sections[12].content[0].value.label', self.config.get('chunksize'));
+  ['1200', '2400', '4800', '9600'].forEach(item => {
+    self.configManager.pushUIConfigParam(uiconf, 'sections[12].content[0].options', { value: item, label: item });
+  });
+}
+
 FusionDsp.prototype.refreshUI = function () {
   const self = this;
 
@@ -1269,6 +1281,21 @@ FusionDsp.prototype.purecamillagui = function () {
   }
 
 };
+
+FusionDsp.prototype.configureVeryAdvSet = function (data) {
+  const self = this;
+  var chunksize = data['chunksize'].value
+  self.config.set('chunksize', chunksize);
+
+  setTimeout(function () {
+    self.createCamilladspfile()
+  }, 100);
+  self.logger.info(logPrefix + ' Chunksise set to ' + chunksize);
+  self.commandRouter.pushToastMessage('success', 'Chunksise set to ' + chunksize);
+
+  self.refreshUI();
+};
+
 
 FusionDsp.prototype.startPeqGraphServer = function () {
   const self = this;
@@ -4070,7 +4097,8 @@ FusionDsp.prototype._doCreateCamilladspfile = function (callback) {
   const self = this;
   var hcurrentsamplerate = 44100;
   let selectedsp = self.config.get('selectedsp')
-  let chunksize = 4800;
+  let chunksize = self.config.get('chunksize') || 4800;
+
   let strCamillaConf;
 
   /*
@@ -5664,9 +5692,9 @@ FusionDsp.prototype.sendvolumelevel = function () {
     let loudnessGain
 
     let loudnessstrength = self.config.get('loudnessstrength')
-    loudnessstrength = [0, 1, 2,3].includes(loudnessstrength) ? loudnessstrength : 2
+    loudnessstrength = [0, 1, 2, 3].includes(loudnessstrength) ? loudnessstrength : 2
 
-    const profiles = [0.25,0.5, 0.75, 1]
+    const profiles = [0.25, 0.5, 0.75, 1]
     let profile = profiles[loudnessstrength]
 
     if (data.volume > loudnessLowThreshold && data.volume < loudnessVolumeThreshold) {
