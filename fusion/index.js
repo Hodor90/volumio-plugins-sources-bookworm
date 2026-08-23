@@ -1,5 +1,5 @@
 /*--------------------
-// FusionDsp plugin for volumio 4. By balbuze July 2026
+// FusionDsp plugin for volumio 4. By balbuze August 2026
 Camilladsp v4.1.3
 contribution : Nerd, Paolo Sabatino, squadgazzz
 Multi Dsp features
@@ -83,7 +83,7 @@ FusionDsp.prototype.onStart = function () {
 
 
   if (!self.checkCamillaBinary()) {
-    const error = new Error("CamillaDSP binary check failed. Plugin startup aborted.");
+    const error = new Error(logPrefix + " CamillaDSP binary check failed. Plugin startup aborted.");
     self.logger.error(logPrefix + error.message);
 
     defer.reject(error);
@@ -142,9 +142,15 @@ FusionDsp.prototype.onStop = function () {
   self.socket.emit('pause');
   // Stop WebSocket monitoring and clear intervals
   if (this.stopClippedSamplesMonitor) {
-    this.logger.info(logPrefix + 'Stopping clipped samples monitor');
+    this.logger.info(logPrefix + ' Stopping clipped samples monitor');
     this.stopClippedSamplesMonitor();
   }
+
+  if (self.socket && self._volumioStateHandler) {
+    self.socket.off('pushState', self._volumioStateHandler);
+    self._volumioStateHandler = null;
+  }
+  self._lastVolumioState = null;
 
   // Disconnect socket
   if (self.socket) {
@@ -152,7 +158,7 @@ FusionDsp.prototype.onStop = function () {
   }
 
   // Stop CamillaDsp process
-  self.logger.info(logPrefix + 'Stopping FusionDsp service');
+  self.logger.info(logPrefix + ' Stopping FusionDsp service');
   if (self.camillaProcess) {
     self.camillaProcess.stop();
     self.camillaProcess = null;
@@ -166,7 +172,7 @@ FusionDsp.prototype.onStop = function () {
     gid: 1000
   }, function (error, stdout, stderr) {
     if (error) {
-      self.logger.info(logPrefix + 'Error in stopping FusionDsp service: ' + error);
+      self.logger.info(logPrefix + ' Error in stopping FusionDsp service: ' + error);
     } else {
       self.reportFusionDisabled();
     }
@@ -197,7 +203,7 @@ FusionDsp.prototype.checkCamillaBinary = function () {
     return false;
   } else {
 
-    this.logger.info(logPrefix + "CamillaDSP binary found.");
+    this.logger.info(logPrefix + " CamillaDSP binary found.");
     return true;
   }
 };
@@ -278,6 +284,14 @@ FusionDsp.prototype.hwinfo = function () {
 FusionDsp.prototype.stopClippedSamplesMonitor = function () {
   // Set a flag to indicate stopping
   this.isStopping = true;
+  this._clippingMonitorState = 'stopped';
+  this._clippingMonitorRequested = false;
+
+  // Clear any pending reconnect timer
+  if (this.monitorReconnectTimer) {
+    clearTimeout(this.monitorReconnectTimer);
+    this.monitorReconnectTimer = null;
+  }
 
   // Clear the interval for periodic commands
   if (this.monitorIntervalId) {
@@ -286,13 +300,17 @@ FusionDsp.prototype.stopClippedSamplesMonitor = function () {
   }
 
   // Close the WebSocket connection if it's open
-  if (this.monitorConnection && this.monitorConnection.readyState === WebSocket.OPEN) {
-    this.monitorConnection.close(); // Close the WebSocket connection
+  if (this.monitorConnection) {
+    try {
+      this.monitorConnection.close();
+    } catch (e) {
+      // ignore
+    }
     this.monitorConnection = null; // Reset the connection
   }
 
   // Log that the monitor has been stopped
-  this.logger.info(logPrefix + 'Clipped samples monitor stopped');
+  this.logger.info(logPrefix + ' Clipped samples monitor stopped');
 };
 
 FusionDsp.prototype.volumioState = function () {
@@ -300,25 +318,36 @@ FusionDsp.prototype.volumioState = function () {
   //self.logger.info(logPrefix + 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx volumioState xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx');
 
   if (!self.socket || !self.socket.connected) {
-    self.logger.error(logPrefix + 'Socket connection not established');
+    self.logger.error(logPrefix + ' Socket connection not established');
     return;
   }
-  // Emit a request to get the current state
-  self.socket.on('pushState', function (data) {
-    //self.logger.info(logPrefix + 'Volumio state: ', data);
+
+  if (self._volumioStateHandler) {
+    return;
+  }
+
+  self._volumioStateHandler = function (data) {
+    const status = data && data.status;
+
+    if (self._lastVolumioState === status) {
+      return;
+    }
+    self._lastVolumioState = status;
 
     // Check if the state is "play"
-    if (data.status === 'play') {
-      self.logger.info(logPrefix + 'Volumio is playing');
+    if (status === 'play') {
+      self.logger.info(logPrefix + ' Volumio is playing');
       self.monitorClippedSamples(); // Start monitoring clipped samples
     } else {
-      self.logger.info(logPrefix + 'Volumio is not playing');
+      self.logger.info(logPrefix + ' Volumio is not playing');
       if (self.stopClippedSamplesMonitor) {
-
         self.stopClippedSamplesMonitor(); // Stop monitoring if not playing
       }
     }
-  });
+  };
+
+  // Emit a request to get the current state
+  self.socket.on('pushState', self._volumioStateHandler);
 };
 
 // Configuration methods------------------------------------------------------------------------
@@ -377,11 +406,11 @@ FusionDsp.prototype.getUIConfig = function () {
 
         defer.resolve(uiconf);
       } catch (e) {
-        self.logger.error(logPrefix + 'Error: ' + e);
+        self.logger.error(logPrefix + ' Error: ' + e);
         defer.reject(new Error());
       }
     }).fail(function (e) {
-      self.logger.error(logPrefix + 'Error: ' + e);
+      self.logger.error(logPrefix + ' Error: ' + e);
       defer.reject(new Error());
     });
 
@@ -818,7 +847,7 @@ function configureConvfirSection(self, uiconf) {
       self.configManager.pushUIConfigParam(uiconf, 'sections[1].content[2].options', option); // Right filter
     });
   } catch (e) {
-    self.logger.error(logPrefix + 'Cannot read filter folder: ' + e);
+    self.logger.error(logPrefix + ' Cannot read filter folder: ' + e);
     const defaultOption = { value: 'None', label: 'None' };
     self.configManager.pushUIConfigParam(uiconf, 'sections[1].content[0].options', defaultOption);
     self.configManager.pushUIConfigParam(uiconf, 'sections[1].content[2].options', defaultOption);
@@ -879,6 +908,8 @@ function configureMoreSettings(self, uiconf, selectedsp, effect) {
 }
 
 function configureAdvancedSettings(self, uiconf, selectedsp) {
+
+
   const controls = [
     ...(selectedsp !== 'convfir' ? [{
       id: 'autoatt',
@@ -893,7 +924,9 @@ function configureAdvancedSettings(self, uiconf, selectedsp) {
     { id: 'permutchannel', element: 'switch', doc: self.commandRouter.getI18nString('PERMUT_CHANNEL_DOC'), label: self.commandRouter.getI18nString('PERMUT_CHANNEL'), value: self.config.get('permutchannel'), visibleIf: { field: 'showeq', value: true } },
     { id: 'muteleft', element: 'switch', doc: self.commandRouter.getI18nString('MUTE_LEFT_DOC'), label: self.commandRouter.getI18nString('MUTE_LEFT'), value: self.config.get('muteleft'), visibleIf: { field: 'showeq', value: true } },
     { id: 'muteright', element: 'switch', doc: self.commandRouter.getI18nString('MUTE_RIGHT_DOC'), label: self.commandRouter.getI18nString('MUTE_RIGHT'), value: self.config.get('muteright'), visibleIf: { field: 'showeq', value: true } },
-    { id: 'crossfeed', element: 'select', doc: self.commandRouter.getI18nString('CROSSFEED_DOC'), label: self.commandRouter.getI18nString('CROSSFEED'), value: getCrossfeedValue(self), options: getCrossfeedOptions(), visibleIf: { field: 'showeq', value: true } }
+    { id: 'crossfeed', element: 'select', doc: self.commandRouter.getI18nString('CROSSFEED_DOC'), label: self.commandRouter.getI18nString('CROSSFEED'), value: getCrossfeedValue(self), options: getCrossfeedOptions(), visibleIf: { field: 'showeq', value: true } },
+    { id: 'crosstalkstrength', element: 'equalizer', label: self.commandRouter.getI18nString('CROSSTALK_STRENGTH'), doc: self.commandRouter.getI18nString('CROSSTALK_STRENGTH_DOC'), visibleIf: { field: 'crossfeed', value: 'cross_talk-can' }, config: { orientation: 'horizontal', bars: [{ value: getCrossfeedStrength(self), ticks: [0, 1, 2], ticksLabels: ['Large---->Extra large', 'Very Large', 'Extra Large'], tooltip: 'hide' }] } }
+
   ];
 
   if (self.config.get('showloudness')) {
@@ -911,9 +944,13 @@ function configureAdvancedSettings(self, uiconf, selectedsp) {
 }
 
 function getCrossfeedValue(self) {
-  const crossconfig = self.config.get('crossfeed');
+  let crossconfig = self.config.get('crossfeed');
+  if (Array.isArray(crossconfig)) {
+    crossconfig = crossconfig[0];
+  }
   const labels = {
     'None': 'None',
+    '-------headphone-----': '-------headphone-----',
     'bauer': 'Bauer 700Hz/4.5dB',
     'chumoy': 'Chu Moy 700Hz/6dB',
     'jameier': 'Jan Meier 650Hz/9.5dB',
@@ -921,14 +958,31 @@ function getCrossfeedValue(self) {
     'nc_11_30': 'Natural Crossfeed 1.1, 30 deg',
     'nc_11_50': 'Natural Crossfeed 1.1, 50 deg',
     'sadie_d1': 'SADIE D1 HRTF (KU100 Dummy Head)',
-    'sadie_h15m': 'SADIE H15m HRTF (Human Subject)'
+    'sadie_h15m': 'SADIE H15m HRTF (Human Subject)',
+    '-------speakers-----': '-------speakers-----',
+    'cross_talk-can': 'Cross Talk-Cancellation'
+
   };
   return { value: crossconfig, label: labels[crossconfig] || 'None' };
+}
+
+function isCrossfeedCrossTalkCan(self) {
+  const crossconfig = self.config.get('crossfeed');
+  return Array.isArray(crossconfig) ? crossconfig[0] === 'cross_talk-can' : crossconfig === 'cross_talk-can';
+}
+
+function getCrossfeedStrength(self) {
+  const crossconfig = self.config.get('crossfeed');
+  if (Array.isArray(crossconfig)) {
+    return crossconfig[1] ?? 0;
+  }
+  return self.config.get('crosstalkstrength') ?? 0;
 }
 
 function getCrossfeedOptions() {
   return [
     { value: 'None', label: 'None' },
+    { value: '-------headphone-----', label: '-------headphone-----' },
     { value: 'bauer', label: 'Bauer 700Hz/4.5dB' },
     { value: 'chumoy', label: 'Chu Moy 700Hz/6dB' },
     { value: 'jameier', label: 'Jan Meier 650Hz/9.5dB' },
@@ -936,7 +990,9 @@ function getCrossfeedOptions() {
     { value: 'nc_11_30', label: 'Natural Crossfeed 1.1, 30 deg' },
     { value: 'nc_11_50', label: 'Natural Crossfeed 1.1, 50 deg' },
     { value: 'sadie_d1', label: 'SADIE D1 HRTF (KU100 Dummy Head)' },
-    { value: 'sadie_h15m', label: 'SADIE H15m HRTF (Human Subject)' }
+    { value: 'sadie_h15m', label: 'SADIE H15m HRTF (Human Subject)' },
+    { value: '-------speakers-----', label: '-------speakers-----' },
+    { value: 'cross_talk-can', label: 'Cross Talk-Cancellation' }
   ];
 }
 
@@ -997,7 +1053,7 @@ function configureFinalSettings(self, uiconf) {
     value: self.config.get('showeq')
   });
 
-  const saveData = ['autoatt', 'leftlevel', 'rightlevel', 'crossfeed', 'monooutput', 'muteleft', 'muteright', 'permutchannel', 'showeq'];
+  const saveData = ['autoatt', 'leftlevel', 'rightlevel', 'crossfeed','crosstalkstrength', 'monooutput', 'muteleft', 'muteright', 'permutchannel', 'showeq'];
   if (self.config.get('showloudness')) saveData.push('loudness', 'loudnessthreshold', 'loudnessstrength');
   uiconf.sections[1].saveButton.data.push(...saveData);
 }
@@ -1155,7 +1211,7 @@ function configureTools(self, uiconf) {
 function configureVeryAdvSet(self, uiconf) {
   self.configManager.setUIConfigParam(uiconf, 'sections[12].content[0].value.value', self.config.get('chunksize'));
   self.configManager.setUIConfigParam(uiconf, 'sections[12].content[0].value.label', self.config.get('chunksize'));
-  ['1200', '2400', '4800', '9600'].forEach(item => {
+  ['128','256','512','1024', '2048', '3200','4096','4800', '9600'].forEach(item => {
     self.configManager.pushUIConfigParam(uiconf, 'sections[12].content[0].options', { value: item, label: item });
   });
 }
@@ -1245,7 +1301,7 @@ FusionDsp.prototype.choosedsp = function (data) {
   setTimeout(function () {
     self.createCamilladspfile()
   }, 100);
-  self.logger.info(logPrefix + 'Selected DSP type is : ' + selectedsp);
+  self.logger.info(logPrefix + ' Selected DSP type is : ' + selectedsp);
 
   self.refreshUI();
 };
@@ -1254,7 +1310,7 @@ FusionDsp.prototype.getIP = function () {
   const self = this;
   var address
   var iPAddresses = self.commandRouter.executeOnPlugin('system_controller', 'network', 'getCachedIPAddresses', '');
-  self.logger.info(logPrefix + '--' + iPAddresses);
+  self.logger.info(logPrefix + ' --' + iPAddresses);
   if (iPAddresses && iPAddresses.eth0 && iPAddresses.eth0 != '') {
     address = iPAddresses.eth0;
   } else if (iPAddresses && iPAddresses.wlan0 && iPAddresses.wlan0 != '' && iPAddresses.wlan0 !== '192.168.211.1') {
@@ -2407,7 +2463,7 @@ FusionDsp.prototype.sendCommandToCamilla = function () {
     };
 
     connection.onerror = (error) => {
-      self.logger.error(logPrefix + `Reload WebSocket error: ${error}`);
+      self.logger.error(logPrefix + ` Reload WebSocket error: ${error}`);
       // Clean up on error
       self.reloadConnection = null;
     };
@@ -2433,16 +2489,16 @@ FusionDsp.prototype.sendCommandToCamilla = function () {
       }
       this.reloadConnection = null;
     }
-    self.logger.info(logPrefix + 'Reload connection stopped');
+    self.logger.info(logPrefix + ' Reload connection stopped');
   };
 };
 
 FusionDsp.prototype.resetClippedSamples = function () {
   if (this.monitorConnection && this.monitorConnection.readyState === WebSocket.OPEN) {
     this.monitorConnection.send('"ResetClippedSamples"');
-    this.logger.info(logPrefix + 'Sent ResetClippedSamples command');
+    this.logger.info(logPrefix + ' Sent ResetClippedSamples command');
   } else {
-    this.logger.warn(logPrefix + 'Monitor WebSocket not open, cannot send ResetClippedSamples');
+    this.logger.warn(logPrefix + ' Monitor WebSocket not open, cannot send ResetClippedSamples');
   }
 };
 
@@ -2465,9 +2521,25 @@ FusionDsp.prototype.monitorClippedSamples = function () {
     self.monitorReconnectDelay = monitorReconnectBaseMs;
   }
 
+  if (self.isStopping) return;
+
+  if (self._clippingMonitorState === 'starting' || self._clippingMonitorState === 'running') {
+    return;
+  }
+
+  if (self.monitorReconnectTimer) {
+    return;
+  }
+
+  self._clippingMonitorState = 'starting';
+  self._clippingMonitorRequested = true;
+
   // Create a new WebSocket connection if not already open
   if (!this.monitorConnection || this.monitorConnection.readyState !== WebSocket.OPEN) {
+    self.monitorConnectionGeneration = (self.monitorConnectionGeneration || 0) + 1;
     this.monitorConnection = new WebSocket(url);
+    this.monitorConnection.__fusionDspConnectionId = self.monitorConnectionGeneration;
+    this.monitorConnection.__fusionDspHasLoggedOpen = false;
     setupMonitorConnection(this.monitorConnection);
   }
 
@@ -2475,7 +2547,22 @@ FusionDsp.prototype.monitorClippedSamples = function () {
     let connectionOpenTime = null;
 
     connection.onopen = () => {
-      self.logger.info(logPrefix + 'Clipping Monitor started');
+      if (connection !== self.monitorConnection) {
+        return;
+      }
+
+      if (self.monitorReconnectTimer) {
+        clearTimeout(self.monitorReconnectTimer);
+        self.monitorReconnectTimer = null;
+      }
+
+      self._clippingMonitorState = 'running';
+
+      if (!connection.__fusionDspHasLoggedOpen) {
+        connection.__fusionDspHasLoggedOpen = true;
+        self.logger.info(logPrefix + ' Clipping Monitor started');
+      }
+
       connectionOpenTime = Date.now();
       // Reset reconnect delay on successful connection that stays open
       setTimeout(() => {
@@ -2486,10 +2573,17 @@ FusionDsp.prototype.monitorClippedSamples = function () {
     };
 
     connection.onerror = (error) => {
-      self.logger.error(logPrefix + `Monitor WebSocket error: ${error}`);
+      if (connection !== self.monitorConnection) {
+        return;
+      }
+      self.logger.error(logPrefix + ` Monitor WebSocket error: ${error}`);
     };
 
     connection.onmessage = (event) => {
+      if (connection !== self.monitorConnection) {
+        return;
+      }
+
       if (self.isStopping) return; // Exit if stopping
 
       const replyString = Buffer.from(event.data).toString();
@@ -2498,7 +2592,7 @@ FusionDsp.prototype.monitorClippedSamples = function () {
       try {
         parsed = JSON.parse(replyString);
       } catch (err) {
-        self.logger.error(logPrefix + 'Parse error: ' + err);
+        self.logger.error(logPrefix + ' Parse error: ' + err);
         return;
       }
 
@@ -2507,7 +2601,7 @@ FusionDsp.prototype.monitorClippedSamples = function () {
         self.lastClippedSamples = clippedSamples;  // Store clipped sample value
 
         if (clippedSamples >= 100) {  // Clipping threshold
-          self.logger.info(logPrefix + 'Clipped samples detected: ' + clippedSamples);
+          self.logger.info(logPrefix + ' Clipped samples detected: ' + clippedSamples);
           self.commandRouter.pushToastMessage('error', self.commandRouter.getI18nString('CLIPPING_WARNING'));
           self.resetClippedSamples();  // Reset clipped samples
         }
@@ -2515,6 +2609,13 @@ FusionDsp.prototype.monitorClippedSamples = function () {
     };
 
     connection.onclose = () => {
+      if (connection !== self.monitorConnection) {
+        return;
+      }
+
+      self.monitorConnection = null;
+      self._clippingMonitorState = 'stopped';
+
       if (!self.isStopping) {
         // Check if connection was up long enough to reset delay
         if (connectionOpenTime && (Date.now() - connectionOpenTime) >= monitorReconnectResetMs) {
@@ -2522,9 +2623,14 @@ FusionDsp.prototype.monitorClippedSamples = function () {
         }
 
         let currentDelay = self.monitorReconnectDelay;
-        self.logger.info(logPrefix + `Clipping Monitor reconnecting in ${currentDelay}ms`);
+        self.logger.info(logPrefix + ` Clipping Monitor reconnecting in ${currentDelay}ms`);
 
-        setTimeout(() => {
+        if (self.monitorReconnectTimer) {
+          clearTimeout(self.monitorReconnectTimer);
+        }
+
+        self.monitorReconnectTimer = setTimeout(() => {
+          self.monitorReconnectTimer = null;
           if (!self.isStopping) {
             self.monitorClippedSamples(); // Reconnect and restart monitoring
           }
@@ -2548,7 +2654,7 @@ FusionDsp.prototype.monitorClippedSamples = function () {
         }
       }, 100);
     } else {
-      self.logger.warn(logPrefix + 'Monitor WebSocket not open, skipping commands');
+      self.logger.warn(logPrefix + ' Monitor WebSocket not open, skipping commands');
     }
   };
 
@@ -2934,7 +3040,7 @@ FusionDsp.prototype.checksamplerate = function () {
     watcher.on("change", debouncedCallbackRead);
     self.logger.info(logPrefix + " ---- installed callbackRead (debounced " + streamWatcherDebounceMs + "ms)");
   } catch (e) {
-    self.logger.error(logPrefix + "### ERROR: could not watch file " + fileStreamParams + " for sampling rate check");
+    self.logger.error(logPrefix + " ### ERROR: could not watch file " + fileStreamParams + " for sampling rate check");
   }
 
 };
@@ -3042,12 +3148,14 @@ let getCamillaFiltersConfig = function (plugin, selectedsp, chunksize, hcurrents
   //------crossfeed section------
 
   var crossconfig = self.config.get('crossfeed')
-  var is_natural = crossconfig.includes("nc_") || crossconfig.includes("sadie_")
-  if ((crossconfig != 'None') && (!is_natural))/* && (effect))*/ {
+  const crossfeedValue = Array.isArray(crossconfig) ? crossconfig[0] : (crossconfig || 'None');
+  const crossfeedStrength = Number(getCrossfeedStrength(self)) || 0;
+  var is_natural = (crossfeedValue || '').includes("nc_") || (crossfeedValue || '').includes("sadie_")
+  if ((crossfeedValue != 'None') && (!is_natural) && (crossfeedValue !== 'cross_talk-can')) {
     var composedeq = '';
 
-    self.logger.info(logPrefix + 'Crossfeed selected : ' + (self.config.get('crossfeed')))
-    switch (crossconfig) {
+    self.logger.info(logPrefix + ' Crossfeed selected : ' + crossfeedValue)
+    switch (crossfeedValue) {
       case ("bauer"):
         crossfreq = 700
         crossatt = 4.5
@@ -3097,15 +3205,53 @@ let getCamillaFiltersConfig = function (plugin, selectedsp, chunksize, hcurrents
 
 
   }
-  if ((crossconfig != 'None') && (is_natural) && (effect)) {
+
+  if (crossfeedValue === 'cross_talk-can') {
+    var composedeq = '';
+
+    self.logger.info(logPrefix + ' Crossfeed selected : ' + crossfeedValue)
+
+
+    composedeq += '  highpass_lower:\n'
+    composedeq += '    type: BiquadCombo\n'
+    composedeq += '    parameters:\n'
+    composedeq += '      type: LinkwitzRileyHighpass\n'
+    composedeq += '      freq: 250\n'
+    composedeq += '      order: 4\n'
+    composedeq += '\n'
+    composedeq += '  lowpass_lower:\n'
+    composedeq += '    type: BiquadCombo\n'
+    composedeq += '    parameters:\n'
+    composedeq += '      type: LinkwitzRileyLowpass\n'
+    composedeq += '      freq: 250\n'
+    composedeq += '      order: 4\n'
+    composedeq += '\n'
+    composedeq += '  highpass_upper:\n'
+    composedeq += '    type: BiquadCombo\n'
+    composedeq += '    parameters:\n'
+    composedeq += '      type: LinkwitzRileyHighpass\n'
+    composedeq += '      freq: 5000\n'
+    composedeq += '      order: 4\n'
+    composedeq += '\n'
+    composedeq += '  lowpass_upper:\n'
+    composedeq += '    type: BiquadCombo\n'
+    composedeq += '    parameters:\n'
+    composedeq += '      type: LinkwitzRileyLowpass\n'
+    composedeq += '      freq: 5000\n'
+    composedeq += '      order: 4\n'
+    result += composedeq
+
+  }
+
+  if ((crossfeedValue != 'None') && (is_natural) && (effect)) {
     var composedeq = '';
 
     let hrtf_filterl = '';
     let hrtf_filterr = '';
     crossatt = 3;
 
-    self.logger.info(logPrefix + ' crossfeed  ' + (self.config.get('crossfeed')))
-    switch (crossconfig) {
+    self.logger.info(logPrefix + ' crossfeed  ' + crossfeedValue)
+    switch (crossfeedValue) {
       case ("nc_11_30"):
         hrtf_filterl = "NC_11_30/NC_11_30_Left_$samplerate$.wav";
         hrtf_filterr = "NC_11_30/NC_11_30_Right_$samplerate$.wav";
@@ -3183,7 +3329,7 @@ let getCamillaFiltersConfig = function (plugin, selectedsp, chunksize, hcurrents
 
   let loudness = self.config.get('loudness')
   if ((loudness) && (effect)) {
-    self.logger.info(logPrefix + 'Loudness is ON ' + loudness)
+    self.logger.info(logPrefix + ' Loudness is ON ' + loudness)
     var composedeq = '';
     var pipelineL = '';
     var pipelineR = '';
@@ -3779,7 +3925,7 @@ let getCamillaFiltersConfig = function (plugin, selectedsp, chunksize, hcurrents
       composedpipeline += '\n'
     }
 
-  } else if ((crossconfig != 'None') && (!is_natural) && (effect)) {
+  } else if ((crossfeedValue !== 'None') && (!is_natural) && effect && (crossfeedValue !== 'cross_talk-can')) {
     // -- if a crossfeed is used
     composedmixer += 'mixers:\n'
     composedmixer += '  2to4:\n'
@@ -3876,6 +4022,142 @@ let getCamillaFiltersConfig = function (plugin, selectedsp, chunksize, hcurrents
     composedpipeline += '     names:\n'
     composedpipeline += '      - ' + pipelinerr + '\n'
 
+
+  } else if ((crossfeedValue === 'cross_talk-can') && effect) {
+
+    // determine width/strength for cross_talk-can (0..2)
+    const width = crossfeedStrength;
+    let cattenuation = 3.1;
+    let cdelay = 0.075;
+    if (width === 1) {
+      cattenuation = 3;
+      cdelay = 0.08;
+    } else if (width === 2) {
+      cattenuation = 3;
+      cdelay = 0.095;
+    }
+
+    self.logger.info(logPrefix + ' cross_talk-can selected: width=' + width + ' attenuation=' + cattenuation + ' delay=' + cdelay);
+
+    composedmixer += 'mixers:\n'
+    composedmixer += '  2to6:\n'
+    composedmixer += '    channels:\n'
+    composedmixer += '       in: 2\n'
+    composedmixer += '       out: 6\n'
+    composedmixer += '    mapping:\n'
+    composedmixer += '      - dest: 0\n'
+    composedmixer += '        sources:\n'
+    composedmixer += '          - channel: 0\n'
+    composedmixer += '            gain: ' + leftgain + '\n'
+    composedmixer += '            inverted: false\n'
+    composedmixer += '      - dest: 1\n'
+    composedmixer += '        sources:\n'
+    composedmixer += '          - channel: 1\n'
+    composedmixer += '            gain: ' + rightgain + '\n'
+    composedmixer += '            inverted: false\n'
+    composedmixer += '      - dest: 2\n'
+    composedmixer += '        sources:\n'
+    composedmixer += '          - channel: 0\n'
+    composedmixer += '            gain: ' + leftgain + '\n'
+    composedmixer += '            inverted: false\n'
+    composedmixer += '      - dest: 3\n'
+    composedmixer += '        sources:\n'
+    composedmixer += '          - channel: 1\n'
+    composedmixer += '            gain: ' + rightgain + '\n'
+    composedmixer += '            inverted: false\n'
+    composedmixer += '      - dest: 4\n'
+    composedmixer += '        sources:\n'
+    composedmixer += '          - channel: 0\n'
+    composedmixer += '            gain: ' + leftgain + '\n'
+    composedmixer += '            inverted: false\n'
+    composedmixer += '      - dest: 5\n'
+    composedmixer += '        sources:\n'
+    composedmixer += '          - channel: 1\n'
+    composedmixer += '            gain: ' + rightgain + '\n'
+    composedmixer += '            inverted: false\n'
+    composedmixer += '  6to2:\n'
+    composedmixer += '    channels:\n'
+    composedmixer += '        in: 6\n'
+    composedmixer += '        out: 2\n'
+    composedmixer += '    mapping:\n'
+    composedmixer += '      - dest: 0\n'
+    composedmixer += '        sources:\n'
+    composedmixer += '          - channel: 0\n'
+    composedmixer += '            gain: -3\n'
+    composedmixer += '            inverted: false\n'
+    composedmixer += '          - channel: 2\n'
+    composedmixer += '            gain: -3\n'
+    composedmixer += '            inverted: false\n'
+    composedmixer += '          - channel: 4\n'
+    composedmixer += '            gain: -3\n'
+    composedmixer += '            inverted: false\n'
+    composedmixer += '      - dest: 1\n'
+    composedmixer += '        sources:\n'
+    composedmixer += '          - channel: 1\n'
+    composedmixer += '            gain: -3\n'
+    composedmixer += '            inverted: false\n'
+    composedmixer += '          - channel: 3\n'
+    composedmixer += '            gain: -3\n'
+    composedmixer += '            inverted: false\n'
+    composedmixer += '          - channel: 5\n'
+    composedmixer += '            gain: -3\n'
+    composedmixer += '            inverted: false\n'
+    composedmixer += '  stereo2:\n'
+    composedmixer += '    channels:\n'
+    composedmixer += '      in: 2\n'
+    composedmixer += '      out: 2\n'
+    composedmixer += '    mapping:\n'
+    composedmixer += '      - dest: 0\n'
+    composedmixer += '        sources:\n'
+    composedmixer += '          - channel: ' + c0 + '\n'
+    composedmixer += '            gain: 0\n'
+    composedmixer += '            inverted: false\n'
+    composedmixer += '            mute: ' + muteleft + '\n'
+    composedmixer += '      - dest: 1\n'
+    composedmixer += '        sources:\n'
+    composedmixer += '          - channel: ' + c1 + '\n'
+    composedmixer += '            gain: 0\n'
+    composedmixer += '            inverted: false\n'
+    composedmixer += '            mute: ' + muteright + '\n'
+
+    composedpipeline += '\n'
+    composedpipeline += 'processors:\n'
+    composedpipeline += '  race:\n'
+    composedpipeline += '    type: RACE\n'
+    composedpipeline += '    parameters:\n'
+    composedpipeline += '      channels: 6\n'
+    composedpipeline += '      channel_a: 2\n'
+    composedpipeline += '      channel_b: 3\n'
+    composedpipeline += '      attenuation: ' + cattenuation + '\n'
+    composedpipeline += '      delay: ' + cdelay + '\n'
+    composedpipeline += 'pipeline:\n'
+    composedpipeline += '  - type: Mixer\n'
+    composedpipeline += '    name: 2to6\n'
+    composedpipeline += '  - type: Filter\n'
+    composedpipeline += '    channels: [0, 1]\n'
+    composedpipeline += '    names:\n'
+    composedpipeline += '      - lowpass_lower\n'
+    composedpipeline += '  - type: Filter\n'
+    composedpipeline += '    channels: [2, 3]\n'
+    composedpipeline += '    names:\n'
+    composedpipeline += '      - highpass_lower\n'
+    composedpipeline += '      - lowpass_upper\n'
+    composedpipeline += '  - type: Filter\n'
+    composedpipeline += '    channels: [4, 5]\n'
+    composedpipeline += '    names:\n'
+    composedpipeline += '      - highpass_upper\n'
+    composedpipeline += '  - type: Processor\n'
+    composedpipeline += '    name: race\n'
+    composedpipeline += '  - type: Mixer\n'
+    composedpipeline += '    name: 6to2\n'
+    composedpipeline += '  - type: Filter\n'
+    composedpipeline += '    channels: [0]\n'
+    composedpipeline += '    names:\n'
+    composedpipeline += '      - ' + pipelinelr + '\n'
+    composedpipeline += '  - type: Filter\n'
+    composedpipeline += '    channels: [1]\n'
+    composedpipeline += '    names:\n'
+    composedpipeline += '      - ' + pipelinerr + '\n'
 
   } else if ((crossconfig != 'None') && (is_natural) && (effect)) {
     // -- if a crossfeed is used
@@ -4110,7 +4392,7 @@ FusionDsp.prototype._doCreateCamilladspfile = function (callback) {
     hcurrentsamplerate = self.pushstateSamplerate;
 
   if (selectedsp != 'convfir')
-    self.logger.info(logPrefix + 'If filter freq >samplerate/2 then disable it');
+    self.logger.info(logPrefix + ' If filter freq >samplerate/2 then disable it');
 
   try {
 
@@ -4435,7 +4717,7 @@ FusionDsp.prototype.saveparameq = function (data, obj) {
           self.logger.info(logPrefix + ' Ok! Convolution files exist');
 
         } else {
-          self.logger.error(logPrefix + 'Nok! Convolution files missing');
+          self.logger.error(logPrefix + ' Nok! Convolution files missing');
           self.commandRouter.pushToastMessage('error', "One filter file is missing!, please reselect it! ");
           self.config.set("leftfilter", "None")
           // self.config.set("leftfilterlabel", "None")
@@ -4589,8 +4871,29 @@ FusionDsp.prototype.saveparameq = function (data, obj) {
     let monooutput = data["monooutput"]
     if (monooutput) {
       self.config.set('crossfeed', 'None');
+    }
+    const crossfeedValue = data['crossfeed']?.value ?? data['crossfeed'];
+    if ((crossfeedValue !== '-------speakers-----') && (crossfeedValue !== '-------headphone-----') && (crossfeedValue !== 'None')) {
+      if (crossfeedValue === 'cross_talk-can') {
+        let crosstalkstrength = data['crosstalkstrength'];
+        if (crosstalkstrength && typeof crosstalkstrength === 'object' && 'value' in crosstalkstrength) {
+          crosstalkstrength = crosstalkstrength.value;
+        }
+        if (Array.isArray(crosstalkstrength)) {
+          crosstalkstrength = crosstalkstrength[0];
+        }
+        if (crosstalkstrength == null) {
+          crosstalkstrength = self.config.get('crosstalkstrength');
+        }
+        if (crosstalkstrength == null) {
+          crosstalkstrength = 0;
+        }
+        self.config.set('crossfeed', [crossfeedValue, Number(crosstalkstrength) || 0]);
+      } else {
+        self.config.set('crossfeed', crossfeedValue);
+      }
     } else {
-      self.config.set('crossfeed', data['crossfeed'].value)
+      self.config.set('crossfeed', 'None');
     }
     let loudness = data["loudness"]
     if (loudness) {
@@ -4684,7 +4987,7 @@ FusionDsp.prototype.saveequalizerpreset = function (data) {
       ]
     }
     self.commandRouter.broadcastMessage("openModal", responseData);
-    self.logger.warn(logPrefix + `File "${filePath}" already exists. Overwriting...`);
+    self.logger.warn(logPrefix + ` File "${filePath}" already exists. Overwriting...`);
     self.config.set("renpreset", dynamicKey)
 
   } else {
@@ -4698,8 +5001,19 @@ FusionDsp.prototype.saveequalizerpresetv = function (data) {
   let defer = libQ.defer();
   let selectedsp = self.config.get('selectedsp');
   let parameters;
+  let crossfeedState = self.config.get('crossfeed');
+  if (Array.isArray(crossfeedState) && crossfeedState[0] === 'cross_talk-can') {
+    let crosstalkstrength = crossfeedState[1];
+    if (crosstalkstrength == null) {
+      crosstalkstrength = self.config.get('crosstalkstrength');
+    }
+    if (crosstalkstrength == null) {
+      crosstalkstrength = 0;
+    }
+    crossfeedState = [crossfeedState[0], Number(crosstalkstrength) || 0];
+  }
   let state4preset = [
-    self.config.get('crossfeed'),
+    crossfeedState,
     self.config.get('monooutput'),
     self.config.get('loudness'),
     self.config.get('loudnessthreshold'),
@@ -4745,6 +5059,7 @@ FusionDsp.prototype.saveequalizerpresetv = function (data) {
       leftfilterlabel: self.config.get('leftfilterlabel'),
       filter_format: self.config.get('filter_format'),
       mergedeq: self.config.get('mergedeq'),
+      savedmergedeqfir: self.config.get('savedmergedeqfir') || self.config.get('mergedeq'),
       state4preset: state4preset
     };
   }
@@ -4757,11 +5072,11 @@ FusionDsp.prototype.saveequalizerpresetv = function (data) {
   // Write the file
   fs.writeFile(filePath, fileContent, 'utf8', (err) => {
     if (err) {
-      self.logger.error(logPrefix + "Error writing file:", err);
+      self.logger.error(logPrefix + " Error writing file:", err);
       defer.reject(err);
       return;
     }
-    self.logger.info(logPrefix + `File "${filePath}" created successfully.`);
+    self.logger.info(logPrefix + ` File "${filePath}" created successfully.`);
     self.commandRouter.pushToastMessage('success', `Preset ${dynamicKey} saved successfully`);
     self.config.set("renpreset", "");
 
@@ -4949,16 +5264,16 @@ FusionDsp.prototype.usethispreset = function (data) {
       callback(null, jsonData[key]);
     });
   }
-  self.logger.info(logPrefix + "Value for usedpreset: ", usedpreset);
+  self.logger.info(logPrefix + " Value for usedpreset: ", usedpreset);
 
   let presetforkey = "parameters";
 
   readValueFromJsonFile(usedpreset, presetforkey, (err, value) => {
     if (err) {
-      self.logger.error(logPrefix + "Error reading JSON file:", err);
+      self.logger.error(logPrefix + " Error reading JSON file:", err);
     }// else {
     try {
-      self.logger.error(logPrefix + "Value reading JSON file:", value);
+      self.logger.error(logPrefix + " Value reading JSON file:", value);
 
       const eqrx = value.geq15;
       const x2eqrx = value.x2geq15;
@@ -5019,8 +5334,9 @@ FusionDsp.prototype.usethispreset = function (data) {
         self.config.set("leftfilter", value.leftfilter);
         self.config.set("rightfilter", value.rightfilter);
         self.config.set('leftfilterlabel', value.leftfilterlabel);
-        self.config.set('filter_format', value.filter_format)
-        self.config.set('mergedeq', value.savedmergedeqfir)
+        const filterFormat = (value.filter_format === undefined || value.filter_format === 'undefined') ? self.config.get('filter_format') : value.filter_format;
+        self.config.set('filter_format', filterFormat);
+        self.config.set('mergedeq', value.savedmergedeqfir ?? value.mergedeq);
         self.config.set("attenuationl", value.attenuationl);
         self.config.set("attenuationr", value.attenuationr);
       }
@@ -5028,7 +5344,16 @@ FusionDsp.prototype.usethispreset = function (data) {
       let state4preset = state4presetx;
 
       self.logger.info(logPrefix + ' value state4preset ' + state4preset)
-      self.config.set('crossfeed', state4preset[0])
+
+      const state4crossfeed = state4preset[0];
+      if (Array.isArray(state4crossfeed)) {
+        const crosstalkstrength = state4crossfeed[1] ?? self.config.get('crosstalkstrength') ?? 0;
+        const normalizedCrossfeed = [state4crossfeed[0], Number(crosstalkstrength) || 0];
+        self.config.set('crossfeed', normalizedCrossfeed);
+        self.config.set('crosstalkstrength', normalizedCrossfeed[1]);
+      } else {
+        self.config.set('crossfeed', state4crossfeed);
+      }
       self.config.set('monooutput', state4preset[1])
       self.config.set('loudness', state4preset[2])
       self.config.set('loudnessthreshold', state4preset[3])
@@ -5555,7 +5880,7 @@ FusionDsp.prototype.convert = function (data) {
           self.logger.info(logPrefix + cmdsox);
         } catch (e) {
           self.logger.error(logPrefix + ' input file does not exist ' + e);
-          self.commandRouter.pushToastMessage('error', 'Sox failed to convert file' + e);
+          self.commandRouter.pushToastMessage('error', ' Sox failed to convert file' + e);
         };
         try {
           let title = self.commandRouter.getI18nString('FILTER_GENE_TITLE') + destfile;
@@ -5705,7 +6030,7 @@ FusionDsp.prototype.sendvolumelevel = function () {
       loudnessGain = 0
     }
 
-    self.logger.info(logPrefix + 'volume level for loudness ' + data.volume + ' gain applied ' + Number.parseFloat(loudnessGain).toFixed(2) * profile)
+    self.logger.info(logPrefix + ' volume level for loudness ' + data.volume + ' gain applied ' + Number.parseFloat(loudnessGain).toFixed(2) * profile)
     self.config.set('loudnessGain', Number.parseFloat(loudnessGain).toFixed(2) * profile)
     self.createCamilladspfile()
   })
