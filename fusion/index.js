@@ -1053,7 +1053,7 @@ function configureFinalSettings(self, uiconf) {
     value: self.config.get('showeq')
   });
 
-  const saveData = ['autoatt', 'leftlevel', 'rightlevel', 'crossfeed','crosstalkstrength', 'monooutput', 'muteleft', 'muteright', 'permutchannel', 'showeq'];
+  const saveData = ['autoatt', 'leftlevel', 'rightlevel', 'crossfeed', 'crosstalkstrength', 'monooutput', 'muteleft', 'muteright', 'permutchannel', 'showeq'];
   if (self.config.get('showloudness')) saveData.push('loudness', 'loudnessthreshold', 'loudnessstrength');
   uiconf.sections[1].saveButton.data.push(...saveData);
 }
@@ -1209,9 +1209,10 @@ function configureTools(self, uiconf) {
 
 
 function configureVeryAdvSet(self, uiconf) {
-  self.configManager.setUIConfigParam(uiconf, 'sections[12].content[0].value.value', self.config.get('chunksize'));
-  self.configManager.setUIConfigParam(uiconf, 'sections[12].content[0].value.label', self.config.get('chunksize'));
-  ['128','256','512','1024', '2048', '3200','4096','4800', '9600'].forEach(item => {
+  const chunksizeValue = self.config.get('chunksizeauto') ? 'AUTO' : self.config.get('chunksize');
+  self.configManager.setUIConfigParam(uiconf, 'sections[12].content[0].value.value', chunksizeValue);
+  self.configManager.setUIConfigParam(uiconf, 'sections[12].content[0].value.label', chunksizeValue);
+  ['AUTO', '128', '256', '512', '1024', '2048', '3200', '4096', '4800', '9600'].forEach(item => {
     self.configManager.pushUIConfigParam(uiconf, 'sections[12].content[0].options', { value: item, label: item });
   });
 }
@@ -1297,10 +1298,11 @@ FusionDsp.prototype.choosedsp = function (data) {
   self.config.set('selectedsp', selectedsp)
   // Clear bypass state when switching modes to prevent stale bypass in the new mode
   self.config.set('eqbypass', false)
-
   setTimeout(function () {
+    self.configureVeryAdvSet()
     self.createCamilladspfile()
-  }, 100);
+  }, 500);
+
   self.logger.info(logPrefix + ' Selected DSP type is : ' + selectedsp);
 
   self.refreshUI();
@@ -1340,14 +1342,27 @@ FusionDsp.prototype.purecamillagui = function () {
 
 FusionDsp.prototype.configureVeryAdvSet = function (data) {
   const self = this;
-  var chunksize = data['chunksize'].value
+  var selectedsp = self.config.get('selectedsp');
+  var chunksizeC = data && data['chunksize'] ? data['chunksize'].value : (self.config.get('chunksizeauto') ? 'AUTO' : self.config.get('chunksize'));
+  var chunksize;
+  if (chunksizeC == 'AUTO') {
+    if (selectedsp !== 'convfir') {
+      chunksize = 256;
+    }
+    else {
+      chunksize = 4800;
+    }
+  }
+  else {
+    chunksize = chunksizeC;
+  }
   self.config.set('chunksize', chunksize);
-
+  self.config.set('chunksizeauto', chunksizeC == 'AUTO');
   setTimeout(function () {
     self.createCamilladspfile()
   }, 100);
   self.logger.info(logPrefix + ' Chunksise set to ' + chunksize);
-  self.commandRouter.pushToastMessage('success', 'Chunksise set to ' + chunksize);
+  self.commandRouter.pushToastMessage('success', 'Chunksise set to ' + chunksizeC);
 
   self.refreshUI();
 };
