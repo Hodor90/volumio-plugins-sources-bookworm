@@ -31,7 +31,8 @@
 		"fs-extra": "^0.28.0",
 		"kew": "^0.7.0",
 		"socket.io-client": "^1.4.8",
-		"v-conf": "^0.10.0"
+		"v-conf": "^0.10.0",
+		"xml2js": "^0.6.2"
 	},
 	"repository": "https://github.com/Saiyato/volumio-lastfm-plugin",
 	"keywords": [	
