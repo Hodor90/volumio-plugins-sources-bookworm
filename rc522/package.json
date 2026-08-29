@@ -1,0 +1,40 @@
+{
+	"name": "rc522",
+	"version": "1.0.0",
+	"description": "Use RC522 to select what has to be played by volumio",
+	"main": "index.js",
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1"
+	},
+	"author": "Hodor90",
+	"license": "ISC",
+	"repository": "https://github.com/Hodor90/volumio-plugins-sources-bookworm",
+	"volumio_info": {
+		"prettyName": "rc522",
+		"icon": "fa-lightbulb-o",
+		"plugin_type": "system_hardware",
+		"architectures": [
+			"amd64",
+			"armhf",
+			"i386"
+		],
+		"boot_priority": 10,
+		"os": [
+			"bookworm"
+		],
+		"details": "Bookworm version - RC522",
+		"changelog": ""
+	},
+	"engines": {
+		"volumio": ">=4",
+    	"node": ">=20"
+	},
+	"dependencies": {
+		"fs-extra": "^0.28.0",
+		"kew": "^0.7.0",
+		"lokijs": "^1.5.6",
+		"mfrc522-rpi": "^2.1.3",
+		"socket.io-client": "^2.5.0",
+		"v-conf": "^1.4.0"
+	}
+}

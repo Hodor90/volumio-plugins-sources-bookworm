@@ -1,0 +1,1022 @@
+{
+  "page": {
+    "label": "TRANSLATE.PLUGIN_CONFIGURATION"
+  },
+  "sections": [
+    {
+      "id": "gpio_extention_setup",
+      "element": "section",
+      "label": "Button 1: enable butt your extended GPIO button actions",
+      "icon": "fa-plug",
+      "onSave": {
+        "type": "controller",
+        "endpoint": "system_hardware/gpio-buttons-extention",
+        "method": "saveConfig"
+      },
+      "saveButton": {
+        "label": "Save",
+        "data": [
+          "button0Enabled",
+          "button0Pin",
+          "button0SocketCmd",
+          "button0SocketData"
+        ]
+      },
+      "content": [
+        {
+          "id": "button0Enabled",
+          "element": "switch",
+          "label": "Enable Button 1",
+          "value": false
+        },
+        {
+          "id": "button0Pin",
+          "element": "select",
+          "label": "GPIO Pin",
+          "value": {
+            "value": 0,
+            "label": "0"
+          },
+          "options": [
+            {
+              "value": 2,
+              "label": "2"
+            },
+            {
+              "value": 3,
+              "label": "3"
+            },
+            {
+              "value": 4,
+              "label": "4"
+            },
+            {
+              "value": 5,
+              "label": "5"
+            },
+            {
+              "value": 6,
+              "label": "6"
+            },
+            {
+              "value": 7,
+              "label": "7"
+            },
+            {
+              "value": 8,
+              "label": "8"
+            },
+            {
+              "value": 9,
+              "label": "9"
+            },
+            {
+              "value": 10,
+              "label": "10"
+            },
+            {
+              "value": 11,
+              "label": "11"
+            },
+            {
+              "value": 12,
+              "label": "12"
+            },
+            {
+              "value": 13,
+              "label": "13"
+            },
+            {
+              "value": 14,
+              "label": "14"
+            },
+            {
+              "value": 15,
+              "label": "15"
+            },
+            {
+              "value": 16,
+              "label": "16"
+            },
+            {
+              "value": 17,
+              "label": "17"
+            },
+            {
+              "value": 18,
+              "label": "18"
+            },
+            {
+              "value": 19,
+              "label": "19"
+            },
+            {
+              "value": 20,
+              "label": "20"
+            },
+            {
+              "value": 21,
+              "label": "21"
+            },
+            {
+              "value": 22,
+              "label": "22"
+            },
+            {
+              "value": 23,
+              "label": "23"
+            },
+            {
+              "value": 24,
+              "label": "24"
+            },
+            {
+              "value": 25,
+              "label": "25"
+            },
+            {
+              "value": 26,
+              "label": "26"
+            },
+            {
+              "value": 27,
+              "label": "27"
+            }
+          ],
+          "visibleIf": {
+            "field": "button0Enabled",
+            "value": true
+          }
+        },
+        {
+          "id": "button0SocketCmd",
+          "element": "select",
+          "label": "Socket CMD",
+          "doc": "Socket CMD",
+          "value": {
+            "value": "playPlaylist",
+            "label": "playPlaylist"
+          },
+          "options": [
+            {
+              "value": "playPlaylist",
+              "label": "playPlaylist"
+            }
+          ],
+          "visibleIf": {
+            "field": "button0Enabled",
+            "value": true
+          }
+        },
+        {
+          "id": "button0SocketData",
+          "element": "select",
+          "label": "Playlist",
+          "doc": "Created playlists with name 1-5 can be configured. (Name for 'Playlist 1' has to be '1')",
+          "value": {
+            "value": "{\"name\": \"1\"}",
+            "label": "Playlist 1"
+          },
+          "options": [
+            {
+              "value": "{\"name\": \"1\"}",
+              "label": "Playlist 1"
+            },
+            {
+              "value": "{\"name\": \"2\"}",
+              "label": "Playlist 2"
+            },
+            {
+              "value": "{\"name\": \"3\"}",
+              "label": "Playlist 3"
+            },
+            {
+              "value": "{\"name\": \"4\"}",
+              "label": "Playlist 4"
+            },
+            {
+              "value": "{\"name\": \"5\"}",
+              "label": "Playlist 5"
+            }
+          ],
+          "visibleIf": {
+            "field": "button0SocketCmd",
+            "value": "playPlaylist"
+          }
+        }
+      ]
+    },
+    {
+      "id": "gpio_extention_setup",
+      "element": "section",
+      "label": "Button 2: enable butt your extended GPIO button actions",
+      "icon": "fa-plug",
+      "onSave": {
+        "type": "controller",
+        "endpoint": "system_hardware/gpio-buttons-extention",
+        "method": "saveConfig"
+      },
+      "saveButton": {
+        "label": "Save",
+        "data": [
+          "button1Enabled",
+          "button1Pin",
+          "button1SocketCmd",
+          "button1SocketData"
+        ]
+      },
+      "content": [
+        {
+          "id": "button1Enabled",
+          "element": "switch",
+          "label": "Enable Button 2",
+          "value": false
+        },
+        {
+          "id": "button1Pin",
+          "element": "select",
+          "label": "GPIO Pin",
+          "value": {
+            "value": 0,
+            "label": "0"
+          },
+          "options": [
+            {
+              "value": 2,
+              "label": "2"
+            },
+            {
+              "value": 3,
+              "label": "3"
+            },
+            {
+              "value": 4,
+              "label": "4"
+            },
+            {
+              "value": 5,
+              "label": "5"
+            },
+            {
+              "value": 6,
+              "label": "6"
+            },
+            {
+              "value": 7,
+              "label": "7"
+            },
+            {
+              "value": 8,
+              "label": "8"
+            },
+            {
+              "value": 9,
+              "label": "9"
+            },
+            {
+              "value": 10,
+              "label": "10"
+            },
+            {
+              "value": 11,
+              "label": "11"
+            },
+            {
+              "value": 12,
+              "label": "12"
+            },
+            {
+              "value": 13,
+              "label": "13"
+            },
+            {
+              "value": 14,
+              "label": "14"
+            },
+            {
+              "value": 15,
+              "label": "15"
+            },
+            {
+              "value": 16,
+              "label": "16"
+            },
+            {
+              "value": 17,
+              "label": "17"
+            },
+            {
+              "value": 18,
+              "label": "18"
+            },
+            {
+              "value": 19,
+              "label": "19"
+            },
+            {
+              "value": 20,
+              "label": "20"
+            },
+            {
+              "value": 21,
+              "label": "21"
+            },
+            {
+              "value": 22,
+              "label": "22"
+            },
+            {
+              "value": 23,
+              "label": "23"
+            },
+            {
+              "value": 24,
+              "label": "24"
+            },
+            {
+              "value": 25,
+              "label": "25"
+            },
+            {
+              "value": 26,
+              "label": "26"
+            },
+            {
+              "value": 27,
+              "label": "27"
+            }
+          ],
+          "visibleIf": {
+            "field": "button1Enabled",
+            "value": true
+          }
+        },
+        {
+          "id": "button1SocketCmd",
+          "element": "select",
+          "label": "Socket CMD",
+          "doc": "Socket CMD",
+          "value": {
+            "value": "playPlaylist",
+            "label": "playPlaylist"
+          },
+          "options": [
+            {
+              "value": "playPlaylist",
+              "label": "playPlaylist"
+            }
+          ],
+          "visibleIf": {
+            "field": "button1Enabled",
+            "value": true
+          }
+        },
+        {
+          "id": "button1SocketData",
+          "element": "select",
+          "label": "Playlist",
+          "doc": "Created playlists with name 1-5 can be configured. (Name for 'Playlist 1' has to be '1')",
+          "value": {
+            "value": "{\"name\": \"1\"}",
+            "label": "Playlist 1"
+          },
+          "options": [
+            {
+              "value": "{\"name\": \"1\"}",
+              "label": "Playlist 1"
+            },
+            {
+              "value": "{\"name\": \"2\"}",
+              "label": "Playlist 2"
+            },
+            {
+              "value": "{\"name\": \"3\"}",
+              "label": "Playlist 3"
+            },
+            {
+              "value": "{\"name\": \"4\"}",
+              "label": "Playlist 4"
+            },
+            {
+              "value": "{\"name\": \"5\"}",
+              "label": "Playlist 5"
+            }
+          ],
+          "visibleIf": {
+            "field": "button1SocketCmd",
+            "value": "playPlaylist"
+          }
+        }
+      ]
+    },
+    {
+      "id": "gpio_extention_setup",
+      "element": "section",
+      "label": "Button 3: enable butt your extended GPIO button actions",
+      "icon": "fa-plug",
+      "onSave": {
+        "type": "controller",
+        "endpoint": "system_hardware/gpio-buttons-extention",
+        "method": "saveConfig"
+      },
+      "saveButton": {
+        "label": "Save",
+        "data": [
+          "button2Enabled",
+          "button2Pin",
+          "button2SocketCmd",
+          "button2SocketData"
+        ]
+      },
+      "content": [
+        {
+          "id": "button2Enabled",
+          "element": "switch",
+          "label": "Enable Button 3",
+          "value": false
+        },
+        {
+          "id": "button2Pin",
+          "element": "select",
+          "label": "GPIO Pin",
+          "value": {
+            "value": 0,
+            "label": "0"
+          },
+          "options": [
+            {
+              "value": 2,
+              "label": "2"
+            },
+            {
+              "value": 3,
+              "label": "3"
+            },
+            {
+              "value": 4,
+              "label": "4"
+            },
+            {
+              "value": 5,
+              "label": "5"
+            },
+            {
+              "value": 6,
+              "label": "6"
+            },
+            {
+              "value": 7,
+              "label": "7"
+            },
+            {
+              "value": 8,
+              "label": "8"
+            },
+            {
+              "value": 9,
+              "label": "9"
+            },
+            {
+              "value": 10,
+              "label": "10"
+            },
+            {
+              "value": 11,
+              "label": "11"
+            },
+            {
+              "value": 12,
+              "label": "12"
+            },
+            {
+              "value": 13,
+              "label": "13"
+            },
+            {
+              "value": 14,
+              "label": "14"
+            },
+            {
+              "value": 15,
+              "label": "15"
+            },
+            {
+              "value": 16,
+              "label": "16"
+            },
+            {
+              "value": 17,
+              "label": "17"
+            },
+            {
+              "value": 18,
+              "label": "18"
+            },
+            {
+              "value": 19,
+              "label": "19"
+            },
+            {
+              "value": 20,
+              "label": "20"
+            },
+            {
+              "value": 21,
+              "label": "21"
+            },
+            {
+              "value": 22,
+              "label": "22"
+            },
+            {
+              "value": 23,
+              "label": "23"
+            },
+            {
+              "value": 24,
+              "label": "24"
+            },
+            {
+              "value": 25,
+              "label": "25"
+            },
+            {
+              "value": 26,
+              "label": "26"
+            },
+            {
+              "value": 27,
+              "label": "27"
+            }
+          ],
+          "visibleIf": {
+            "field": "button2Enabled",
+            "value": true
+          }
+        },
+        {
+          "id": "button2SocketCmd",
+          "element": "select",
+          "label": "Socket CMD",
+          "doc": "Socket CMD",
+          "value": {
+            "value": "playPlaylist",
+            "label": "playPlaylist"
+          },
+          "options": [
+            {
+              "value": "playPlaylist",
+              "label": "playPlaylist"
+            }
+          ],
+          "visibleIf": {
+            "field": "button2Enabled",
+            "value": true
+          }
+        },
+        {
+          "id": "button2SocketData",
+          "element": "select",
+          "label": "Playlist",
+          "doc": "Created playlists with name 1-5 can be configured. (Name for 'Playlist 1' has to be '1')",
+          "value": {
+            "value": "{\"name\": \"1\"}",
+            "label": "Playlist 1"
+          },
+          "options": [
+            {
+              "value": "{\"name\": \"1\"}",
+              "label": "Playlist 1"
+            },
+            {
+              "value": "{\"name\": \"2\"}",
+              "label": "Playlist 2"
+            },
+            {
+              "value": "{\"name\": \"3\"}",
+              "label": "Playlist 3"
+            },
+            {
+              "value": "{\"name\": \"4\"}",
+              "label": "Playlist 4"
+            },
+            {
+              "value": "{\"name\": \"5\"}",
+              "label": "Playlist 5"
+            }
+          ],
+          "visibleIf": {
+            "field": "button2SocketCmd",
+            "value": "playPlaylist"
+          }
+        }
+      ]
+    },
+    {
+      "id": "gpio_extention_setup",
+      "element": "section",
+      "label": "Button 4: enable butt your extended GPIO button actions",
+      "icon": "fa-plug",
+      "onSave": {
+        "type": "controller",
+        "endpoint": "system_hardware/gpio-buttons-extention",
+        "method": "saveConfig"
+      },
+      "saveButton": {
+        "label": "Save",
+        "data": [
+          "button3Enabled",
+          "button3Pin",
+          "button3SocketCmd",
+          "button3SocketData"
+        ]
+      },
+      "content": [
+        {
+          "id": "button3Enabled",
+          "element": "switch",
+          "label": "Enable Button 4",
+          "value": false
+        },
+        {
+          "id": "button3Pin",
+          "element": "select",
+          "label": "GPIO Pin",
+          "value": {
+            "value": 0,
+            "label": "0"
+          },
+          "options": [
+            {
+              "value": 2,
+              "label": "2"
+            },
+            {
+              "value": 3,
+              "label": "3"
+            },
+            {
+              "value": 4,
+              "label": "4"
+            },
+            {
+              "value": 5,
+              "label": "5"
+            },
+            {
+              "value": 6,
+              "label": "6"
+            },
+            {
+              "value": 7,
+              "label": "7"
+            },
+            {
+              "value": 8,
+              "label": "8"
+            },
+            {
+              "value": 9,
+              "label": "9"
+            },
+            {
+              "value": 10,
+              "label": "10"
+            },
+            {
+              "value": 11,
+              "label": "11"
+            },
+            {
+              "value": 12,
+              "label": "12"
+            },
+            {
+              "value": 13,
+              "label": "13"
+            },
+            {
+              "value": 14,
+              "label": "14"
+            },
+            {
+              "value": 15,
+              "label": "15"
+            },
+            {
+              "value": 16,
+              "label": "16"
+            },
+            {
+              "value": 17,
+              "label": "17"
+            },
+            {
+              "value": 18,
+              "label": "18"
+            },
+            {
+              "value": 19,
+              "label": "19"
+            },
+            {
+              "value": 20,
+              "label": "20"
+            },
+            {
+              "value": 21,
+              "label": "21"
+            },
+            {
+              "value": 22,
+              "label": "22"
+            },
+            {
+              "value": 23,
+              "label": "23"
+            },
+            {
+              "value": 24,
+              "label": "24"
+            },
+            {
+              "value": 25,
+              "label": "25"
+            },
+            {
+              "value": 26,
+              "label": "26"
+            },
+            {
+              "value": 27,
+              "label": "27"
+            }
+          ],
+          "visibleIf": {
+            "field": "button3Enabled",
+            "value": true
+          }
+        },
+        {
+          "id": "button3SocketCmd",
+          "element": "select",
+          "label": "Socket CMD",
+          "doc": "Socket CMD",
+          "value": {
+            "value": "playPlaylist",
+            "label": "playPlaylist"
+          },
+          "options": [
+            {
+              "value": "playPlaylist",
+              "label": "playPlaylist"
+            }
+          ],
+          "visibleIf": {
+            "field": "button3Enabled",
+            "value": true
+          }
+        },
+        {
+          "id": "button3SocketData",
+          "element": "select",
+          "label": "Playlist",
+          "doc": "Created playlists with name 1-5 can be configured. (Name for 'Playlist 1' has to be '1')",
+          "value": {
+            "value": "{\"name\": \"1\"}",
+            "label": "Playlist 1"
+          },
+          "options": [
+            {
+              "value": "{\"name\": \"1\"}",
+              "label": "Playlist 1"
+            },
+            {
+              "value": "{\"name\": \"2\"}",
+              "label": "Playlist 2"
+            },
+            {
+              "value": "{\"name\": \"3\"}",
+              "label": "Playlist 3"
+            },
+            {
+              "value": "{\"name\": \"4\"}",
+              "label": "Playlist 4"
+            },
+            {
+              "value": "{\"name\": \"5\"}",
+              "label": "Playlist 5"
+            }
+          ],
+          "visibleIf": {
+            "field": "button3SocketCmd",
+            "value": "playPlaylist"
+          }
+        }
+      ]
+    },
+    {
+      "id": "gpio_extention_setup",
+      "element": "section",
+      "label": "Button 5: enable butt your extended GPIO button actions",
+      "icon": "fa-plug",
+      "onSave": {
+        "type": "controller",
+        "endpoint": "system_hardware/gpio-buttons-extention",
+        "method": "saveConfig"
+      },
+      "saveButton": {
+        "label": "Save",
+        "data": [
+          "button4Enabled",
+          "button4Pin",
+          "button4SocketCmd",
+          "button4SocketData"
+        ]
+      },
+      "content": [
+        {
+          "id": "button4Enabled",
+          "element": "switch",
+          "label": "Enable Button 5",
+          "value": false
+        },
+        {
+          "id": "button4Pin",
+          "element": "select",
+          "label": "GPIO Pin",
+          "value": {
+            "value": 0,
+            "label": "0"
+          },
+          "options": [
+            {
+              "value": 2,
+              "label": "2"
+            },
+            {
+              "value": 3,
+              "label": "3"
+            },
+            {
+              "value": 4,
+              "label": "4"
+            },
+            {
+              "value": 5,
+              "label": "5"
+            },
+            {
+              "value": 6,
+              "label": "6"
+            },
+            {
+              "value": 7,
+              "label": "7"
+            },
+            {
+              "value": 8,
+              "label": "8"
+            },
+            {
+              "value": 9,
+              "label": "9"
+            },
+            {
+              "value": 10,
+              "label": "10"
+            },
+            {
+              "value": 11,
+              "label": "11"
+            },
+            {
+              "value": 12,
+              "label": "12"
+            },
+            {
+              "value": 13,
+              "label": "13"
+            },
+            {
+              "value": 14,
+              "label": "14"
+            },
+            {
+              "value": 15,
+              "label": "15"
+            },
+            {
+              "value": 16,
+              "label": "16"
+            },
+            {
+              "value": 17,
+              "label": "17"
+            },
+            {
+              "value": 18,
+              "label": "18"
+            },
+            {
+              "value": 19,
+              "label": "19"
+            },
+            {
+              "value": 20,
+              "label": "20"
+            },
+            {
+              "value": 21,
+              "label": "21"
+            },
+            {
+              "value": 22,
+              "label": "22"
+            },
+            {
+              "value": 23,
+              "label": "23"
+            },
+            {
+              "value": 24,
+              "label": "24"
+            },
+            {
+              "value": 25,
+              "label": "25"
+            },
+            {
+              "value": 26,
+              "label": "26"
+            },
+            {
+              "value": 27,
+              "label": "27"
+            }
+          ],
+          "visibleIf": {
+            "field": "button4Enabled",
+            "value": true
+          }
+        },
+        {
+          "id": "button4SocketCmd",
+          "element": "select",
+          "label": "Socket CMD",
+          "doc": "Socket CMD",
+          "value": {
+            "value": "playPlaylist",
+            "label": "playPlaylist"
+          },
+          "options": [
+            {
+              "value": "playPlaylist",
+              "label": "playPlaylist"
+            }
+          ],
+          "visibleIf": {
+            "field": "button4Enabled",
+            "value": true
+          }
+        },
+        {
+          "id": "button4SocketData",
+          "element": "select",
+          "label": "Playlist",
+          "doc": "Created playlists with name 1-5 can be configured. (Name for 'Playlist 1' has to be '1')",
+          "value": {
+            "value": "{\"name\": \"1\"}",
+            "label": "Playlist 1"
+          },
+          "options": [
+            {
+              "value": "{\"name\": \"1\"}",
+              "label": "Playlist 1"
+            },
+            {
+              "value": "{\"name\": \"2\"}",
+              "label": "Playlist 2"
+            },
+            {
+              "value": "{\"name\": \"3\"}",
+              "label": "Playlist 3"
+            },
+            {
+              "value": "{\"name\": \"4\"}",
+              "label": "Playlist 4"
+            },
+            {
+              "value": "{\"name\": \"5\"}",
+              "label": "Playlist 5"
+            }
+          ],
+          "visibleIf": {
+            "field": "button4SocketCmd",
+            "value": "playPlaylist"
+          }
+        }
+      ]
+    }
+  ]
+}

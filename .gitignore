@@ -12,6 +12,7 @@ yarn-error.log*
 *.pid
 *.seed
 *.pid.lock
+node_modules/
 
 # IDE and editor
 .idea/

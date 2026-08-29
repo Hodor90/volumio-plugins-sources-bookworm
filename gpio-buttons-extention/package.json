@@ -1,0 +1,39 @@
+{
+	"name": "gpio-buttons-extention",
+	"version": "0.0.1",
+	"description": "Extend volumio with customizable gpio buttons.",
+	"main": "index.js",
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1"
+	},
+	"author": "Hodor90",
+	"license": "ISC",
+	"repository": "https://github.com/Hodor90/volumio-plugins-sources-bookworm",
+	"volumio_info": {
+		"prettyName": "GPIO Buttons Extention",
+		"icon": "fa-microchip",
+		"plugin_type": "system_hardware",
+		"boot_priority": 10,
+		"architectures": [
+			"amd64",
+			"armhf",
+			"i386"
+		],
+		"os": [
+			"bookworm"
+		],
+		"details": "Bookworm version - Extend volumio with customizable gpio buttons.",
+		"changelog": ""
+	},
+	"engines": {
+		"volumio": ">=4",
+    	"node": ">=20"
+	},
+	"dependencies": {
+		"fs-extra": "^0.28.0",
+		"kew": "^0.7.0",
+		"v-conf": "^1.4.0",
+		"onoff": "^6.0.0",
+		"socket.io-client": "1.7.4"
+	}
+}
