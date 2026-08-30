@@ -5,7 +5,7 @@ const gpiox = require('@iiot2k/gpiox');
 const io = require('socket.io-client');
 const socket = io.connect('http://localhost:3000');
 const buttons = ["button0", "button1", "button2", "button3", "button4"];
-
+const DEBOUNCE_US = 1000; // microseconds
 
 module.exports = GPIOButtonsExtention;
 function GPIOButtonsExtention(context) {
