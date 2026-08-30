@@ -192,7 +192,7 @@ GPIOButtonsExtention.prototype.createTriggers = function () {
 			self.logger.info('GPIO-Buttons-Extention: ' + button + ' on pin ' + pin);
 			
 			var handler = function(state, edge) {
-				self.logger.debug(LOG_PREFIX + 'GPIO' + pin + ' state=' + state + ', edge=' + edge);
+				self.logger.debug('GPIO-Buttons-Extention: ' + 'GPIO' + pin + ' state=' + state + ', edge=' + edge);
 				if (state === 0) { // Falling edge (pull-up -> pressed to ground)
 					self.executeAction(button);
 				}
