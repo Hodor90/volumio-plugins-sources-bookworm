@@ -1,10 +1,10 @@
 'use strict';
 
-var libQ = require('kew');
-var Gpio = require('onoff').Gpio;
-var io = require('socket.io-client');
-var socket = io.connect('http://localhost:3000');
-var buttons = ["button0", "button1", "button2", "button3", "button4"];
+const libQ = require('kew');
+const gpiox = require('@iiot2k/gpiox');
+const io = require('socket.io-client');
+const socket = io.connect('http://localhost:3000');
+const buttons = ["button0", "button1", "button2", "button3", "button4"];
 
 
 module.exports = GPIOButtonsExtention;
@@ -190,9 +190,27 @@ GPIOButtonsExtention.prototype.createTriggers = function () {
 
 		if (enabled === true) {
 			self.logger.info('GPIO-Buttons-Extention: ' + button + ' on pin ' + pin);
-			var gpioButton = new Gpio(pin + 512, 'in', 'both');
-			gpioButton.watch(self.listener.bind(self, button));
-			self.triggers.push(gpioButton);
+			
+			var handler = function(state, edge) {
+				self.logger.debug(LOG_PREFIX + 'GPIO' + pin + ' state=' + state + ', edge=' + edge);
+				if (state === 0) { // Falling edge (pull-up -> pressed to ground)
+					self.executeAction(buttonKey);
+				}
+			};
+
+			var internalPin = pin + 512;
+
+			//var gpioButton = new Gpio(pin + 512, 'in', 'both');
+			//gpioButton.watch(self.listener.bind(self, button));
+			gpiox.watch_gpio(
+				internalPin,
+				gpiox.GPIO_MODE_INPUT_PULLUP,
+				DEBOUNCE_US,
+				gpiox.GPIO_EDGE_FALLING,
+				handler
+			);
+			
+			self.triggers.set(internalPin, handler);
 		}
 	});
 
@@ -203,14 +221,11 @@ GPIOButtonsExtention.prototype.createTriggers = function () {
 GPIOButtonsExtention.prototype.clearTriggers = function () {
 	var self = this;
 
-	self.triggers.forEach(function (trigger, index, array) {
-		self.logger.info("GPIO-Buttons-Extention: Destroying trigger " + index);
-
-		trigger.unwatchAll();
-		trigger.unexport();
+	self.triggers.forEach(function(handler, pin) {
+		gpiox.deinit_gpio(pin);
+		self.logger.info("GPIO-Buttons-Extention: Destroying trigger " + pin);
 	});
-
-	self.triggers = [];
+	self.triggers.clear();
 
 	return libQ.resolve();
 };
