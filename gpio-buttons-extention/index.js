@@ -194,7 +194,7 @@ GPIOButtonsExtention.prototype.createTriggers = function () {
 			var handler = function(state, edge) {
 				self.logger.debug(LOG_PREFIX + 'GPIO' + pin + ' state=' + state + ', edge=' + edge);
 				if (state === 0) { // Falling edge (pull-up -> pressed to ground)
-					self.executeAction(buttonKey);
+					self.executeAction(button);
 				}
 			};
 
@@ -231,7 +231,7 @@ GPIOButtonsExtention.prototype.clearTriggers = function () {
 };
 
 
-GPIOButtonsExtention.prototype.listener = function (button, err, value) {
+GPIOButtonsExtention.prototype.executeAction = function(button) {
 	var self = this;
 
 	var socketCmdConfig = button.concat('.socketCmd');
