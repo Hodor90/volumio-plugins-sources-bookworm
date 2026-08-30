@@ -198,19 +198,17 @@ GPIOButtonsExtention.prototype.createTriggers = function () {
 				}
 			};
 
-			var internalPin = pin + 512;
-
 			//var gpioButton = new Gpio(pin + 512, 'in', 'both');
 			//gpioButton.watch(self.listener.bind(self, button));
 			gpiox.watch_gpio(
-				internalPin,
+				pin,
 				gpiox.GPIO_MODE_INPUT_PULLUP,
 				DEBOUNCE_US,
 				gpiox.GPIO_EDGE_FALLING,
 				handler
 			);
 			
-			self.triggers.set(internalPin, handler);
+			self.triggers.set(pin, handler);
 		}
 	});
 
