@@ -15,7 +15,7 @@ function GPIOButtonsExtention(context) {
 	self.commandRouter = self.context.coreCommand;
 	self.logger = self.context.logger;
 	self.configManager = self.context.configManager;
-	self.triggers = [];
+	self.triggers = new Map(); // Store pin handlers: Map<pin, handler>
 	self.lastCmd = null;
 	self.lastSocketData = null;
 }
